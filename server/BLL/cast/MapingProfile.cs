@@ -13,7 +13,7 @@ namespace BLL.cast
     {
         public MapingProfile()
         {
-            CreateMap<Books,BooksDTO>()
+            CreateMap<Book,BooksDTO>()
                 .ForMember(dest=>dest.CategoryName,
                 source=>source.MapFrom(source
                 =>source.Category.Name)).ReverseMap();
