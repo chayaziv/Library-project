@@ -1,12 +1,13 @@
 ﻿using DAL;
+using System.Linq.Expressions;
 namespace BLL
 {
-    public class Packagesrespository : IRepository<Package>
+    public class PackagesRespository : IRepository<Package>
 
     {
         private Dblibrary Dblibrary;
 
-        public Packagesrespository(Dblibrary dblibrary)
+        public PackagesRespository(Dblibrary dblibrary)
         {
             Dblibrary = dblibrary;
         }
@@ -48,6 +49,11 @@ namespace BLL
         public List<Package> GetAll()
         {
             return Dblibrary.Packages.ToList();
+        }
+
+        public List<Package> GetAll(Expression<Func<Package, bool>>? filter = null)
+        {
+            return GetAll();
         }
     }
 }

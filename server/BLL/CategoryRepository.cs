@@ -1,4 +1,5 @@
 ﻿using DAL;
+using System.Linq.Expressions;
 namespace BLL
 {
     public class CategoryRepository : IRepository<Category>
@@ -48,6 +49,11 @@ namespace BLL
         public List<Category> GetAll()
         {
             return Dblibrary.Categories.ToList();
+        }
+
+        public List<Category> GetAll(Expression<Func<Category, bool>>? filter = null)
+        {
+            return GetAll();
         }
     }
 }
