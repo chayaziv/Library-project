@@ -31,12 +31,12 @@ namespace Project.Controllers
             if (b == null || !ModelState.IsValid)
                 return BadRequest("bbbbbbbb");
 
-            Package Package = PackageRepository.GetById(b.PackageCodePackageCode);
+            Package Package = PackageRepository.GetById(b.Id);
             if (Package != null)
 
                 return BadRequest("try to add exist book");
             PackageRepository.Add(b);
-            return CreatedAtAction(nameof(AddBook), new { id = b.PackageCodePackageCode }, b);
+            return CreatedAtAction(nameof(AddBook), new { id = b.Id }, b);
 
 
         }
@@ -46,9 +46,9 @@ namespace Project.Controllers
         {
             if (b == null || !ModelState.IsValid)
                 return BadRequest();
-            if (id != b.PackageCodePackageCode)
+            if (id != b.Id)
                 return Conflict();
-            return CreatedAtAction(nameof(AddBook), new { id = b.PackageCodePackageCode }, PackageRepository.Update(b));
+            return CreatedAtAction(nameof(AddBook), new { id = b.Id }, PackageRepository.Update(b));
         }
         [HttpDelete("delete")]
         public IActionResult Delete(int id)
