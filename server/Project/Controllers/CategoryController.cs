@@ -26,15 +26,15 @@ namespace Project.Controllers
             return Ok(b);//200
         }
         [HttpPost("add")]
-        public ActionResult<Category> AddCategory(Category b)
+        public ActionResult<Category> AddCategory([FromBody] Category b)
         {
-            if (b == null || ModelState.IsValid)
+            if (b == null)
                 return BadRequest();
 
             Category Category = CategoryRepository.GetById(b.Id);
             if (Category != null)
 
-                return BadRequest("try to add exist book");
+                return BadRequest("try to add exist category");
             CategoryRepository.Add(b);
             return CreatedAtAction(nameof(AddCategory), new { id = b.Id }, b);
 
@@ -42,7 +42,7 @@ namespace Project.Controllers
         }
         [HttpPut("update/{id}")]
 
-        public IActionResult UpdateBook(int id, Category b)
+        public IActionResult UpdateBook(int id,[FromBody] Category b)
         {
             if (b == null || !ModelState.IsValid)
                 return BadRequest();

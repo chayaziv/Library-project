@@ -39,13 +39,9 @@ namespace BLL
 
 
         }
-        public List<User> GetAll()
-        {
-            return Dblibrary.Users.ToList();
-        }
         public List<User> GetAll(Expression<Func<User, bool>>? filter = null)
         {
-           return GetAll();
+            return Dblibrary.Users.ToList();
         }
     }
 }

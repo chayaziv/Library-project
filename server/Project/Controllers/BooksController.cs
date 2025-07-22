@@ -27,9 +27,9 @@ namespace Project.Controllers
             return Ok(b);//200
         }
         [HttpPost("add")]
-        public ActionResult<Book> AddBook(Book b)
+        public ActionResult<Book> AddBook([FromBody]Book b)
         {
-            if (b == null || ModelState.IsValid)
+            if (b == null)
                 return BadRequest();
 
             Book Book = booksRepository.GetById(b.Id);
@@ -43,7 +43,7 @@ namespace Project.Controllers
         }
         [HttpPut("update/{id}")]
 
-        public IActionResult UpdateBook(int id, Book b)
+        public IActionResult UpdateBook(int id,[FromBody] Book b)
         {
             if (b == null || !ModelState.IsValid)
                 return BadRequest();
