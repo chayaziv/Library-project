@@ -29,7 +29,7 @@ namespace BLL
         }
         public User GetBy(User s)
         {
-            return (from u in Dblibrary.Users where u.Id == s.Id &&u.Name==s.Name &&u.Password==s.Password select u).FirstOrDefault();
+            return (from u in Dblibrary.Users where u.Email==s.Email &&u.Password==s.Password select u).FirstOrDefault();
         }
         public User Update(User entity)
         {
