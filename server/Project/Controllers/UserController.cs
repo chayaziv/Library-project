@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using BLL;
+using BLL.BLL;
 using DAL;
 using DTO;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 namespace Project.Controllers
 {
     [Route("api/[controller]")]
@@ -14,11 +16,17 @@ namespace Project.Controllers
     {
         private IRepository<User> UserRepository;
         private IMapper mapper;
+        private IRepository<PackageUser> _packageUserRepository;
+        private IRepository<BookUser> _bookUserRepository;
+        private IRepository<Package> _packageRepository;
 
-        public UserController(IRepository<User> UserRepository ,IMapper mapper)
+        public UserController(IRepository<User> UserRepository ,IMapper mapper,IRepository<PackageUser>package,IRepository<BookUser> repository,IRepository<Package> repository1)
         {
             this.UserRepository = UserRepository;
             this.mapper = mapper;
+            _packageUserRepository = package;
+            _bookUserRepository = repository;
+            _packageRepository = repository1;
         }
         [HttpPost("login")]
         public ActionResult<UserDto> GetUserById(UserDto s)
@@ -86,5 +94,43 @@ namespace Project.Controllers
                 return NotFound("Dont have any User");
             return Ok(s);
         }
+
+        [HttpGet("{userId}/packages")]
+        public IActionResult GetPackagesByActiveStatus(int userId, [FromQuery] bool isActive)
+        {
+            var packages = _packageUserRepository.GetAll(pu => pu.UserId == userId && pu.IsActive == isActive);
+            return Ok(packages);
+        }
+        [HttpGet("{userId}/books")]
+        public IActionResult GetBooksByActiveStatus(int userId, [FromQuery] bool isActive)
+        {
+            var books = _bookUserRepository.GetAll(bu => bu.UserId == userId && bu.IsActiveForUser == isActive);
+            return Ok(books);
+        }
+        [HttpPost("{userId}/packages")]
+        public ActionResult<PackageUserDto> PurchasePackage(int userId, [FromBody] int packageId)
+        {
+            var user = UserRepository.GetById(userId);
+            if (user == null)
+                return NotFound("User not found");
+
+            var package =_packageRepository.GetById(packageId);
+            if (package == null)
+                return NotFound("Package not found");
+
+            var packageUser = new PackageUser
+            {
+                UserId = userId,
+                PackageId = packageId,
+                IsActive = true,
+                RemainingPoints = package.PointCount,
+                PurchaseDate = DateTime.UtcNow
+            };
+            _packageUserRepository.Add(packageUser);
+            var packageUserDto = mapper.Map<PackageUserDto>(packageUser);
+            return Ok(packageUserDto);
+
+        }
+
     }
 }

@@ -11,7 +11,6 @@ namespace DAL
     {
         public Dblibrary(DbContextOptions<Dblibrary> options) : base(options)
         {
-
         }
         public DbSet<Book> Book { get; set; }
         public DbSet<Package> Packages { get; set; }

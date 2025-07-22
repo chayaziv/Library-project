@@ -15,6 +15,8 @@ namespace BLL.cast
         public MapingProfile()
         {
             CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<PackageUser, PackageUserDto>().ReverseMap();
         }
+        
     }
 }

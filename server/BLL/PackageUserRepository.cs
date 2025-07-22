@@ -52,15 +52,13 @@ namespace BLL
                 Dblibrary.PackageUser.Update(entity);
                 Dblibrary.SaveChanges();
                 return entity;
-
-
             }
             public List<PackageUser> GetAll()
             {
                 return Dblibrary.PackageUser.ToList();
             }
 
-            public List<PackageUser> GetAll(Expression<Func<PackageUser, bool>>? filter = null)
+            public List<PackageUser> GetAll(Expression<Func<PackageUser, bool>>? filter)
             {
                 IQueryable<PackageUser> query = Dblibrary.PackageUser;
 
