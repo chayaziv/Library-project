@@ -46,14 +46,10 @@ namespace BLL
 
 
         }
-        public List<Package> GetAll()
-        {
-            return Dblibrary.Packages.ToList();
-        }
 
         public List<Package> GetAll(Expression<Func<Package, bool>>? filter = null)
         {
-            return GetAll();
+            return Dblibrary.Packages.ToList();
         }
     }
 }
