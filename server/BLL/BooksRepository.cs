@@ -1,13 +1,14 @@
 ﻿
 using DAL;
-using DTO;
+
 using AutoMapper;
 using BLL.cast;
+using System.Linq.Expressions;
 
 namespace BLL
 
 {
-    public class BooksRepository : IRepository<BooksDTO>
+    public class BooksRepository : IRepository<Book>
 
     {
         private Dblibrary Dblibrary;
@@ -19,47 +20,52 @@ namespace BLL
             this.mapper = mapper;
         }
 
-        public BooksDTO Add(BooksDTO entity)
+        public Book Add(Book entity)
         {
-            Dblibrary.Book.Add(mapper.Map<Books>(entity));
+            Dblibrary.Book.Add(entity);
             Dblibrary.SaveChanges();
-            return mapper.Map < BooksDTO > (entity);
+            return entity;
 
         }
 
        
 
-        public void Delete(BooksDTO entity)
+        public void Delete(Book entity)
         {
-            Dblibrary.Book.Remove(mapper.Map<Books>(entity));
+            Dblibrary.Book.Remove(entity);
             Dblibrary.SaveChanges();
 
         }
 
-        public BooksDTO GetBy(BooksDTO entity)
+        public Book GetBy(Book entity)
         {
             throw new NotImplementedException();
         }
 
-        public BooksDTO GetById(int id)
+        public Book GetById(int id)
         {
-            return mapper.Map<BooksDTO>(Dblibrary.Book.Find(id));
+            return Dblibrary.Book.Find(id);
 
         }
 
-        public BooksDTO Update(BooksDTO entity)
+        public Book Update(Book entity)
         {
-            Dblibrary.Book.Update(mapper.Map < Books> (entity));
+            Dblibrary.Book.Update(entity);
             Dblibrary.SaveChanges();
-            return mapper.Map < BooksDTO > (entity);
+            return  entity;
 
 
         }
 
-        public  List<BooksDTO> GetAll()
+        public  List<Book> GetAll()
         {
-            return mapper.Map<List<BooksDTO>>(Dblibrary.Packages).ToList();
+            return Dblibrary.Book.ToList();
            
+        }
+
+        public List<Book> GetAll(Expression<Func<Book, bool>>? filter = null)
+        {
+            throw new NotImplementedException();
         }
     }
 }

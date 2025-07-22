@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
+using DAL;
+using DTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DAL;
-using DTO;
+//using DTO;
 
 namespace BLL.cast
 {
@@ -13,10 +14,7 @@ namespace BLL.cast
     {
         public MapingProfile()
         {
-            CreateMap<Books,BooksDTO>()
-                .ForMember(dest=>dest.CategoryName,
-                source=>source.MapFrom(source
-                =>source.Category.Name)).ReverseMap();
+            CreateMap<User, UserDto>().ReverseMap();
         }
     }
 }

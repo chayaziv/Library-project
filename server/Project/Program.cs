@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using DAL;
 using BLL;
 using AutoMapper;
-using DTO;
+using BLL.BLL;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,12 +16,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddDbContext<Dblibrary>( o => o.UseLazyLoadingProxies().UseSqlServer
     (builder.Configuration.GetConnectionString("SqlServer")));
-builder.Services.AddScoped<IRepository<BooksDTO>,BooksRepository>();
-builder.Services.AddScoped<IRepository<CardRedemption>, CardRedemptionRepository>();
-builder.Services.AddScoped<IRepository<Package>, Packagesrespository>();
-builder.Services.AddScoped<IRepository<Subscriptions>,SubscriptionRespository>();
-//builder.Services.AddScoped<IRepository<SubscriptionCard>, SubscriptionCardRespository>();
-builder.Services.AddScoped< CategoryRepository>();
+builder.Services.AddScoped<IRepository<Book>,BooksRepository>();
+builder.Services.AddScoped<IRepository<BookUser>,BookUserRepository>();
+builder.Services.AddScoped<IRepository<Package>, PackagesRespository>();
+builder.Services.AddScoped<IRepository<PackageUser>,PackageUserRespository>();
+builder.Services.AddScoped<IRepository<User>,UserRespository>();
+builder.Services.AddScoped<IRepository<Category>,CategoryRepository>();
 
 
 builder.Services.AddCors(options =>

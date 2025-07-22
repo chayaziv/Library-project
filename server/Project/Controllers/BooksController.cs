@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using BLL;
 using DAL;
 using Microsoft.AspNetCore.Cors;
-using DTO;
+
 
 namespace Project.Controllers
 {
@@ -12,56 +12,56 @@ namespace Project.Controllers
     [EnableCors]
     public class BooksController : ControllerBase
     {
-        private IRepository<BooksDTO> booksRepository;
+        private IRepository<Book> booksRepository;
 
-        public BooksController(IRepository<BooksDTO> booksRepository)
+        public BooksController(IRepository<Book> booksRepository)
         {
             this.booksRepository = booksRepository;
         }
         [HttpGet("get/{id}")]
         public IActionResult GetBookById(int id)
         {
-            BooksDTO b = booksRepository.GetById(id);
+            Book b = booksRepository.GetById(id);
             if (b == null)
                 return NotFound("the book isnot found");//404
             return Ok(b);//200
         }
         [HttpPost("add")]
-        public ActionResult<BooksDTO> AddBook(BooksDTO b)
+        public ActionResult<Book> AddBook(Book b)
         {
             if (b == null || ModelState.IsValid)
                 return BadRequest();
 
-            BooksDTO booksDTO = booksRepository.GetById(b.BookCode);
-            if (booksDTO != null)
+            Book Book = booksRepository.GetById(b.Id);
+            if (Book != null)
 
                 return BadRequest("try to add exist book");
             booksRepository.Add(b);
-            return CreatedAtAction(nameof(AddBook), new { id = b.BookCode }, b);
+            return CreatedAtAction(nameof(AddBook), new { id = b.Id }, b);
 
 
         }
         [HttpPut("update/{id}")]
 
-        public IActionResult UpdateBook(int id, BooksDTO b)
+        public IActionResult UpdateBook(int id, Book b)
         {
             if (b == null || !ModelState.IsValid)
                 return BadRequest();
-            if (id != b.BookCode)
+            if (id != b.Id)
                 return Conflict();
-            return CreatedAtAction(nameof(AddBook), new { id = b.BookCode }, booksRepository.Update(b));
+            return CreatedAtAction(nameof(AddBook), new { id = b.Id }, booksRepository.Update(b));
         }
         [HttpDelete("delete")]
         public IActionResult Delete(int id)
         {
 
-            BooksDTO booksDTO = booksRepository.GetById(id);
-            if (booksDTO == null)
+            Book Book = booksRepository.GetById(id);
+            if (Book == null)
             {
                 return NotFound();
             }
 
-            booksRepository.Delete(booksDTO);
+            booksRepository.Delete(Book);
             return NoContent();
 
 
@@ -69,9 +69,9 @@ namespace Project.Controllers
         [HttpGet("GetAll")]
         public IActionResult GetAll()
         {
-            List<BooksDTO> b = booksRepository.GetAll();
+            List<Book> b = booksRepository.GetAll();
             if (b == null)
-                return NotFound("Dont have any BooksDTO");
+                return NotFound("Dont have any Book");
             return Ok(b);
         }
     }
