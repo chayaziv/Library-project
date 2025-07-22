@@ -65,7 +65,7 @@ namespace BLL
 
         public List<Book> GetAll(Expression<Func<Book, bool>>? filter = null)
         {
-            throw new NotImplementedException();
+            return GetAll();
         }
     }
 }
