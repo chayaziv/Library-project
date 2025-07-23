@@ -163,6 +163,16 @@ namespace Project.Controllers
             if (book == null)
                 return NotFound("Book not found");
 
+            var matchingPackageUser = user.PackageUsers
+            .Where(pu => pu.Package != null &&
+                     pu.Package.CategoryId == book.CategoryId &&
+                     pu.RemainingPoints > 0)
+             .FirstOrDefault();
+
+            if (matchingPackageUser == null)
+                return BadRequest("No available package with points for this book's category.");
+
+
 
         }
 

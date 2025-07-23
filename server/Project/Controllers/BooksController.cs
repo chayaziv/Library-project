@@ -67,7 +67,7 @@ namespace Project.Controllers
 
         }
         [HttpGet("GetAll")]
-        public IActionResult GetAll()
+        public ActionResult<List<Book>> GetAll()
         {
             List<Book> b = booksRepository.GetAll();
             if (b == null)
