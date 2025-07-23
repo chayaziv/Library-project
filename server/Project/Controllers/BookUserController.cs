@@ -16,7 +16,7 @@ namespace Project.Controllers
             public int BookId { get; set; }
 
             public DateTime BorrowDate { get; set; }
-            public DateTime ReturnDate { get; set; } // Nullable, in case return hasn't happened yet
+            public DateTime ReturnDate { get; set; }
         }
          private IRepository<User> _userRep;
          private IRepository<Book> _bookRep;
@@ -34,7 +34,7 @@ namespace Project.Controllers
             var result = _bookUserRep.GetAll(bu => bu.UserId == userId && bu.Status == BookUserStatus.Active);
             return Ok(result);
         }
-        [HttpGet("getActive/{userId}")]
+        [HttpGet("history/{userId}")]
         public ActionResult<List<BookUser>> GetHistory(int userId)
         {
             var result = _bookUserRep.GetAll(bu => bu.UserId == userId);
@@ -81,7 +81,7 @@ namespace Project.Controllers
             return Ok(bookUser);
         }
 
-        [HttpPut("cancel/{userBookId")]
+        [HttpPut("cancel/{userBookId}")]
         public ActionResult<BookUser> ChangeStatusToCancle(int bookuserid)
         {
             var bookuser=_bookUserRep.GetById(bookuserid);
@@ -91,7 +91,7 @@ namespace Project.Controllers
             if (bu == null) return BadRequest("update fail");
             return Ok(bu);
         }
-        [HttpPut("complete/{userBookId")]
+        [HttpPut("complete/{userBookId}")]
         public ActionResult<BookUser> ChangeStatusToComplete(int bookuserid)
         {
             var bookuser = _bookUserRep.GetById(bookuserid);
