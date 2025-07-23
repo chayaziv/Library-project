@@ -104,13 +104,13 @@ namespace Project.Controllers
         }
 
         [HttpGet("{userId}/packages")]
-        public IActionResult GetPackagesByActiveStatus(int userId, [FromQuery] bool isActive)
+        public ActionResult<List<Package>> GetPackagesByActiveStatus(int userId, [FromQuery] bool isActive)
         {
             var packages = _packageUserRepository.GetAll(pu => pu.UserId == userId && pu.IsActive == isActive);
             return Ok(packages);
         }
         [HttpGet("{userId}/books")]
-        public IActionResult GetBooksByActiveStatus(int userId, [FromQuery] bool isActive)
+        public ActionResult<List<Book>> GetBooksByActiveStatus(int userId, [FromQuery] bool isActive)
         {
             var books = _bookUserRepository.GetAll(bu => bu.UserId == userId && bu.IsActiveForUser == isActive);
             return Ok(books);

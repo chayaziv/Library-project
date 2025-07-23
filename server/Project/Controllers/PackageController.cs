@@ -65,7 +65,7 @@ namespace Project.Controllers
 
         }
         [HttpGet("GetAll")]
-        public IActionResult GetAll()
+        public ActionResult<List<Package>> GetAll()
         {
             List<Package> p = PackageRepository.GetAll();
             if(p==null)
