@@ -122,6 +122,7 @@ namespace Project.Controllers
         [HttpPost("{userId}/packages")]
         public ActionResult<PackageUserDto> PurchasePackage(int userId, [FromBody] ReqPurchase packageId)
         {
+            Console.WriteLine("----!!!!!!!!!!!!!!!------");
             var user = UserRepository.GetById(userId);
             if (user == null)
                 return NotFound("User not found");

@@ -16,8 +16,7 @@ import {
   purchasePackageError,
   purchasePackage,
   fetchPackages,
-  PackageUser,
-  Package,
+ 
 } from "@/store/slices/packagesSlice";
 import { toast } from "@/hooks/use-toast";
 import { Package2, BookOpen, CreditCard, Loader2 } from "lucide-react";

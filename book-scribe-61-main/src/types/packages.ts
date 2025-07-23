@@ -1,7 +1,4 @@
-export interface Category {
-  id: number;
-  name: string;
-}
+import { Category } from "./common";
 
 export interface Package {
   id: number;
