@@ -18,6 +18,7 @@ namespace DAL
         public DbSet<User> Users { get; set; }
         public DbSet<PackageUser> PackageUser { get; set; }
         public DbSet<BookUser> BookUser { get; set; }
+        
     }
 }
 
