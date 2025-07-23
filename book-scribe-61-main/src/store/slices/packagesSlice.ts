@@ -1,76 +1,67 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
+import { Category, Package, PackageUser, PackagesState } from "../../types";
 
-export interface Category {
-  id: number;
-  name: string;
-}
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5130/api";
 
-export interface Package {
-  id: number;
-  pointCount: number;
-  name: string;
-  price: number;
-  categoryId: number;
-  category: Category;
-}
+export const fetchPackages = createAsyncThunk("packages/fetchAll", async () => {
+  const res = await axios.get<Package[]>(`${BASE_URL}/package/getall`);
+  return res.data;
+});
 
-export interface PackageUser {
-  id: number;
-  userId: number;
-  user?: any; // To avoid circular import, can be improved
-  packageId: number;
-  package?: Package;
-  isActive: boolean;
-  remainingPoints: number;
-  purchaseDate: string;
-}
+export const fetchPackageById = createAsyncThunk(
+  "packages/fetchById",
+  async (id: number) => {
+    const res = await axios.get<Package>(`${BASE_URL}/packages/${id}`);
+    return res.data;
+  }
+);
 
-interface PackagesState {
-  availablePackages: Package[];
-  userPackages: PackageUser[];
-  activePackage: PackageUser | null;
-  loading: boolean;
-  purchasingPackageId: string | null;
-}
+export const fetchUserPackages = createAsyncThunk(
+  "packages/fetchUserPackages",
+  async (userId: number) => {
+    const res = await axios.get<PackageUser[]>(
+      `${BASE_URL}/users/${userId}/packages`
+    );
+    return res.data;
+  }
+);
+
+export const purchasePackage = createAsyncThunk(
+  "packages/purchase",
+  async ({ userId, packageId }: { userId: number; packageId: number }) => {
+    const res = await axios.post<PackageUser>(
+      `${BASE_URL}/users/${userId}/packages`,
+      { packageId }
+    );
+    return res.data;
+  }
+);
+
+export const updatePackagePoints = createAsyncThunk(
+  "packages/updatePoints",
+  async ({
+    packageUserId,
+    remainingPoints,
+  }: {
+    packageUserId: number;
+    remainingPoints: number;
+  }) => {
+    const res = await axios.put<PackageUser>(
+      `${BASE_URL}/package-users/${packageUserId}/points`,
+      { remainingPoints }
+    );
+    return res.data;
+  }
+);
 
 const initialState: PackagesState = {
-  availablePackages: [
-    {
-      id: 1,
-      pointCount: 5,
-      name: "Basic Thriller Package",
-      price: 99,
-      categoryId: 1, // Assuming Thriller category has id 1
-      category: { id: 1, name: "Thriller" },
-    },
-    {
-      id: 2,
-      pointCount: 10,
-      name: "Extended Thriller Package",
-      price: 179,
-      categoryId: 1, // Assuming Thriller category has id 1
-      category: { id: 1, name: "Thriller" },
-    },
-    {
-      id: 3,
-      pointCount: 8,
-      name: "Comics Package",
-      price: 149,
-      categoryId: 2, // Assuming Comics category has id 2
-      category: { id: 2, name: "Comics" },
-    },
-    {
-      id: 4,
-      pointCount: 6,
-      name: "Romance Package",
-      price: 119,
-      categoryId: 3, // Assuming Romance category has id 3
-      category: { id: 3, name: "Romance" },
-    },
-  ],
+  availablePackages: [],
   userPackages: [],
   activePackage: null,
+  selectedPackage: null,
   loading: false,
+  error: null,
   purchasingPackageId: null,
 };
 
@@ -78,60 +69,139 @@ const packagesSlice = createSlice({
   name: "packages",
   initialState,
   reducers: {
-    setPackages: (state, action: PayloadAction<Package[]>) => {
-      state.availablePackages = action.payload;
+    clearSelectedPackage: (state) => {
+      state.selectedPackage = null;
     },
-    setUserPackages: (state, action: PayloadAction<PackageUser[]>) => {
-      state.userPackages = action.payload;
-      state.activePackage =
-        action.payload.find((pkg) => pkg.isActive && pkg.remainingPoints > 0) ||
-        null;
+    clearError: (state) => {
+      state.error = null;
     },
     purchasePackageStart: (state, action: PayloadAction<string>) => {
-      state.loading = true;
       state.purchasingPackageId = action.payload;
+      state.loading = true;
+      state.error = null;
     },
     purchasePackageSuccess: (state, action: PayloadAction<PackageUser>) => {
+      state.purchasingPackageId = null;
+      state.loading = false;
       state.userPackages.push(action.payload);
       state.activePackage = action.payload;
-      state.loading = false;
-      state.purchasingPackageId = null;
     },
     purchasePackageError: (state) => {
-      state.loading = false;
       state.purchasingPackageId = null;
-    },
-    updateActivePackage: (state, action: PayloadAction<PackageUser>) => {
-      state.activePackage = action.payload;
-      const index = state.userPackages.findIndex(
-        (pkg) => pkg.id === action.payload.id
-      );
-      if (index !== -1) {
-        state.userPackages[index] = action.payload;
-      }
+      state.loading = false;
+      state.error = "שגיאה בעת רכישת חבילה";
     },
     decrementPackageBooks: (state) => {
       if (state.activePackage && state.activePackage.remainingPoints > 0) {
-        state.activePackage.remainingPoints--;
-        const index = state.userPackages.findIndex(
-          (pkg) => pkg.id === state.activePackage!.id
-        );
-        if (index !== -1) {
-          state.userPackages[index].remainingPoints--;
-        }
+        state.activePackage.remainingPoints -= 1;
       }
     },
   },
+  extraReducers: (builder) => {
+    builder
+      // Fetch packages cases
+      .addCase(fetchPackages.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchPackages.fulfilled, (state, action) => {
+        state.loading = false;
+        state.availablePackages = action.payload;
+      })
+      .addCase(fetchPackages.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "שגיאה בעת שליפת חבילות";
+      })
+      // Fetch package by ID cases
+      .addCase(fetchPackageById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.selectedPackage = null;
+      })
+      .addCase(fetchPackageById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedPackage = action.payload;
+      })
+      .addCase(fetchPackageById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "שגיאה בעת שליפת חבילה";
+        state.selectedPackage = null;
+      })
+      // Fetch user packages cases
+      .addCase(fetchUserPackages.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchUserPackages.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userPackages = action.payload;
+        state.activePackage =
+          action.payload.find(
+            (pkg) => pkg.isActive && pkg.remainingPoints > 0
+          ) || null;
+      })
+      .addCase(fetchUserPackages.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "שגיאה בעת שליפת חבילות משתמש";
+      })
+      // Purchase package cases
+      .addCase(purchasePackage.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(purchasePackage.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userPackages.push(action.payload);
+        state.activePackage = action.payload;
+      })
+      .addCase(purchasePackage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "שגיאה בעת רכישת חבילה";
+      })
+      // Update package points cases
+      .addCase(updatePackagePoints.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updatePackagePoints.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedPackage = action.payload;
+        const index = state.userPackages.findIndex(
+          (pkg) => pkg.id === updatedPackage.id
+        );
+        if (index !== -1) {
+          state.userPackages[index] = updatedPackage;
+        }
+        if (state.activePackage?.id === updatedPackage.id) {
+          state.activePackage = updatedPackage;
+        }
+      })
+      .addCase(updatePackagePoints.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "שגיאה בעת עדכון נקודות חבילה";
+      });
+  },
 });
 
-export const {
-  setPackages,
-  setUserPackages,
-  purchasePackageStart,
-  purchasePackageSuccess,
-  purchasePackageError,
-  updateActivePackage,
-  decrementPackageBooks,
-} = packagesSlice.actions;
+export const { clearSelectedPackage, clearError } = packagesSlice.actions;
+
+// Add missing functions that are used in components
+export const purchasePackageStart = (packageId: string) => ({
+  type: "packages/purchasePackageStart",
+  payload: packageId,
+});
+
+export const purchasePackageSuccess = (userPackage: PackageUser) => ({
+  type: "packages/purchasePackageSuccess",
+  payload: userPackage,
+});
+
+export const purchasePackageError = () => ({
+  type: "packages/purchasePackageError",
+});
+
+export const decrementPackageBooks = () => ({
+  type: "packages/decrementPackageBooks",
+});
 
 export default packagesSlice.reducer;

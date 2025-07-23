@@ -11,19 +11,38 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
-import { filterByCategory } from "@/store/slices/booksSlice";
+import {
+  filterByCategory,
+  fetchBooks,
+  fetchCategories,
+} from "@/store/slices/booksSlice";
+import { fetchUserPackages } from "@/store/slices/packagesSlice";
 import { BookOpen, Filter } from "lucide-react";
 
 export const BookList = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { filteredBooks, selectedCategory } = useAppSelector(
+  const { filteredBooks, selectedCategory, loading } = useAppSelector(
     (state) => state.books
   );
-  const { activePackage } = useAppSelector((state) => state.packages);
+  const { activePackage, loading: packagesLoading } = useAppSelector((state) => state.packages);
+  const { user } = useAppSelector((state) => state.auth);
 
   // Use English category names to match the booksSlice
   const categories = ["All", "Thriller", "Comics", "Romance"];
+
+  useEffect(() => {
+    // Load books and categories
+    dispatch(fetchBooks());
+    dispatch(fetchCategories());
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Load user packages if user is authenticated
+    if (user) {
+      dispatch(fetchUserPackages(user.id));
+    }
+  }, [dispatch, user]);
 
   useEffect(() => {
     // Check if there is an active package with points

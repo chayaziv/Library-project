@@ -22,7 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
-import { addBorrow } from "@/store/slices/borrowsSlice";
+import { createBookUser } from "@/store/slices/bookUsersSlice";
 import { decrementPackageBooks } from "@/store/slices/packagesSlice";
 import { updateBookAvailability } from "@/store/slices/booksSlice";
 import { toast } from "@/hooks/use-toast";
@@ -124,20 +124,16 @@ export const NewBorrow = () => {
     }
 
     try {
-      // Create new borrow
-      const newBorrow = {
-        id: Date.now().toString(),
-        userId: String(user.id),
-        bookId: String(selectedBook.id),
-        book: selectedBook,
-        borrowDate: data.borrowDate,
-        returnDate: data.returnDate,
-        status: "active" as const,
-        canModify: new Date(data.borrowDate) > new Date(),
-      };
+      // Create new borrow using the async thunk
+      await dispatch(
+        createBookUser({
+          userId: user.id,
+          bookId: selectedBook.id,
+          returnDate: data.returnDate,
+        })
+      ).unwrap();
 
-      // Update store
-      dispatch(addBorrow(newBorrow));
+      // Update local state
       dispatch(decrementPackageBooks());
       dispatch(
         updateBookAvailability({
@@ -148,7 +144,7 @@ export const NewBorrow = () => {
 
       toast({
         title: "Borrow completed successfully!",
-        description: `You borrowed "${selectedBook.title}" successfully`,
+        description: `You borrowed "${selectedBook.name}" successfully`,
       });
 
       navigate("/active-borrows");
@@ -200,8 +196,8 @@ export const NewBorrow = () => {
             <div className="flex gap-4">
               <div className="w-24 h-32 bg-muted rounded-md flex-shrink-0">
                 <img
-                  src={selectedBook.image}
-                  alt={selectedBook.title}
+                  src={"/placeholder.svg"}
+                  alt={selectedBook.name}
                   className="w-full h-full object-cover rounded-md"
                   onError={(e) => {
                     e.currentTarget.src = "/placeholder.svg";
@@ -211,17 +207,19 @@ export const NewBorrow = () => {
 
               <div className="flex-1 space-y-2">
                 <div className="flex justify-between items-start">
-                  <h3 className="text-xl font-semibold">
-                    {selectedBook.title}
-                  </h3>
-                  <Badge className={getCategoryColor(selectedBook.category)}>
-                    {selectedBook.category}
+                  <h3 className="text-xl font-semibold">{selectedBook.name}</h3>
+                  <Badge
+                    className={getCategoryColor(
+                      selectedBook.category?.name || ""
+                    )}
+                  >
+                    {selectedBook.category?.name}
                   </Badge>
                 </div>
                 <p className="text-muted-foreground">
                   By: {selectedBook.author}
                 </p>
-                <p className="text-sm">{selectedBook.description}</p>
+                <p className="text-sm">{selectedBook.name}</p>
               </div>
             </div>
           </CardContent>

@@ -31,6 +31,11 @@ namespace Project.Controllers
         [HttpPost("login")]
         public ActionResult<UserDto> GetUserById(UserDto s)
         {
+            Console.WriteLine(  "---------------------------------");
+            Console.WriteLine(s.Email);
+            Console.WriteLine(mapper.Map<User>(s));
+
+            Console.WriteLine("---------------------------------");
             User b = UserRepository.GetBy(mapper.Map<User>(s));
             if (b == null)
                 return NotFound("the User isnot found");//404
@@ -90,6 +95,7 @@ namespace Project.Controllers
         public IActionResult GetAll()
         {
             List<User> s = UserRepository.GetAll();
+            Console.WriteLine("GetAll");
             if (s == null)
                 return NotFound("Dont have any User");
             return Ok(s);

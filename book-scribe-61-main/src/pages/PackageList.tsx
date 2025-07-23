@@ -14,6 +14,8 @@ import {
   purchasePackageStart,
   purchasePackageSuccess,
   purchasePackageError,
+  purchasePackage,
+  fetchPackages,
   PackageUser,
   Package,
 } from "@/store/slices/packagesSlice";
@@ -28,41 +30,26 @@ export const PackageList = () => {
   );
   const { user } = useAppSelector((state) => state.auth);
 
+  useEffect(() => {
+    // Load available packages
+    dispatch(fetchPackages());
+  }, [dispatch]);
+
   const handlePurchase = async (packageId: number) => {
     if (!user) return;
 
     try {
-      dispatch(purchasePackageStart(""+packageId));
-
-      // API call simulation
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      const selectedPackage:Package = availablePackages.find(
-        (pkg) => pkg.id === packageId
-      );
-      if (!selectedPackage) return;
-
-      const newUserPackage:PackageUser = {
-        id:11,
-        packageId: packageId,
-        userId: user.id,
-        purchaseDate: new Date().toISOString(),
-        remainingPoints: selectedPackage.pointCount,
-        isActive: true,
-        package: selectedPackage,
-      };
-
-      dispatch(purchasePackageSuccess(newUserPackage));
+      // Use the async thunk for actual API call
+      await dispatch(purchasePackage({ userId: user.id, packageId })).unwrap();
 
       toast({
         title: "Purchase completed successfully!",
-        description: `Purchased ${selectedPackage.name} with ${selectedPackage.pointCount} books`,
+        description: "Package purchased successfully",
       });
 
       // Navigate to ActiveBorrows after successful purchase
       navigate("/active-borrows");
     } catch (error) {
-      dispatch(purchasePackageError());
       toast({
         title: "Purchase error",
         description: "An error occurred while purchasing the package",
@@ -124,10 +111,10 @@ export const PackageList = () => {
                 </div>
                 <Button
                   onClick={() => handlePurchase(pkg.id)}
-                  disabled={purchasingPackageId === pkg.id+""}
+                  disabled={purchasingPackageId === pkg.id + ""}
                   className="flex items-center gap-2"
                 >
-                  {purchasingPackageId === pkg.id +""&& (
+                  {purchasingPackageId === pkg.id + "" && (
                     <Loader2 className="h-4 w-4 animate-spin" />
                   )}
                   <CreditCard className="h-4 w-4" />

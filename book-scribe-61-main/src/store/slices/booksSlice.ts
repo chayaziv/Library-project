@@ -1,90 +1,54 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import axios from "axios";
+import { Category, Book, BooksState } from "../../types";
 
-export interface Category {
-  id: number;
-  name: string;
-}
+const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5130/api";
 
-export interface Book {
-  id: number;
-  name?: string;
-  author?: string;
-  categoryId: number;
-  category?: Category;
-  isActive: boolean;
-}
+export const fetchBooks = createAsyncThunk("books/fetchAll", async () => {
+  const res = await axios.get<Book[]>(`${BASE_URL}/books`);
+  return res.data;
+});
 
-interface BooksState {
-  books: Book[];
-  filteredBooks: Book[];
-  selectedCategory: string;
-  loading: boolean;
-}
+export const fetchBookById = createAsyncThunk(
+  "books/fetchById",
+  async (id: number) => {
+    const res = await axios.get<Book>(`${BASE_URL}/books/${id}`);
+    return res.data;
+  }
+);
+
+export const fetchCategories = createAsyncThunk(
+  "books/fetchCategories",
+  async () => {
+    const res = await axios.get<Category[]>(`${BASE_URL}/categories`);
+    return res.data;
+  }
+);
+
+export const updateBookStatus = createAsyncThunk(
+  "books/updateStatus",
+  async ({ bookId, isActive }: { bookId: number; isActive: boolean }) => {
+    const res = await axios.put<Book>(`${BASE_URL}/books/${bookId}/status`, {
+      isActive,
+    });
+    return res.data;
+  }
+);
 
 const initialState: BooksState = {
-  books: [
-    {
-      id: 1,
-      name: "Murder on the Orient Express",
-      author: "Agatha Christie",
-      categoryId: 1,
-      category: { id: 1, name: "Thriller" },
-      isActive: true,
-    },
-    {
-      id: 2,
-      name: "The Da Vinci Code",
-      author: "Dan Brown",
-      categoryId: 1,
-      category: { id: 1, name: "Thriller" },
-      isActive: true,
-    },
-    {
-      id: 3,
-      name: "Spider-Man: New Beginnings",
-      author: "Stan Lee",
-      categoryId: 2,
-      category: { id: 2, name: "Comics" },
-      isActive: true,
-    },
-    {
-      id: 4,
-      name: "Batman: Year One",
-      author: "Frank Miller",
-      categoryId: 2,
-      category: { id: 2, name: "Comics" },
-      isActive: true,
-    },
-    {
-      id: 5,
-      name: "Pride and Prejudice",
-      author: "Jane Austen",
-      categoryId: 3,
-      category: { id: 3, name: "Romance" },
-      isActive: true,
-    },
-    {
-      id: 6,
-      name: "The Notebook",
-      author: "Nicholas Sparks",
-      categoryId: 3,
-      category: { id: 3, name: "Romance" },
-      isActive: true,
-    },
-  ],
+  books: [],
   filteredBooks: [],
+  categories: [],
   selectedCategory: "All",
+  selectedBook: null,
   loading: false,
+  error: null,
 };
 
 const booksSlice = createSlice({
   name: "books",
   initialState,
   reducers: {
-    setBooks: (state, action: PayloadAction<Book[]>) => {
-      state.books = action.payload;
-      state.filteredBooks = action.payload;
-    },
     filterByCategory: (state, action: PayloadAction<string>) => {
       state.selectedCategory = action.payload;
       if (action.payload === "All") {
@@ -95,31 +59,117 @@ const booksSlice = createSlice({
         );
       }
     },
+    clearSelectedBook: (state) => {
+      state.selectedBook = null;
+    },
+    clearError: (state) => {
+      state.error = null;
+    },
     updateBookAvailability: (
       state,
       action: PayloadAction<{ bookId: number; isActive: boolean }>
     ) => {
-      const book = state.books.find((b) => b.id === action.payload.bookId);
-      if (book) {
-        book.isActive = action.payload.isActive;
+      const { bookId, isActive } = action.payload;
+      const bookIndex = state.books.findIndex((book) => book.id === bookId);
+      if (bookIndex !== -1) {
+        state.books[bookIndex].isActive = isActive;
       }
-      const filteredBook = state.filteredBooks.find(
-        (b) => b.id === action.payload.bookId
+      const filteredIndex = state.filteredBooks.findIndex(
+        (book) => book.id === bookId
       );
-      if (filteredBook) {
-        filteredBook.isActive = action.payload.isActive;
+      if (filteredIndex !== -1) {
+        state.filteredBooks[filteredIndex].isActive = isActive;
       }
     },
-    setLoading: (state, action: PayloadAction<boolean>) => {
-      state.loading = action.payload;
-    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch books cases
+      .addCase(fetchBooks.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchBooks.fulfilled, (state, action) => {
+        state.loading = false;
+        state.books = action.payload;
+        state.filteredBooks = action.payload;
+      })
+      .addCase(fetchBooks.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "שגיאה בעת שליפת ספרים";
+      })
+      // Fetch book by ID cases
+      .addCase(fetchBookById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.selectedBook = null;
+      })
+      .addCase(fetchBookById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedBook = action.payload;
+      })
+      .addCase(fetchBookById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "שגיאה בעת שליפת ספר";
+        state.selectedBook = null;
+      })
+      // Fetch categories cases
+      .addCase(fetchCategories.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.loading = false;
+        state.categories = action.payload;
+      })
+      .addCase(fetchCategories.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "שגיאה בעת שליפת קטגוריות";
+      })
+      // Update book status cases
+      .addCase(updateBookStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateBookStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedBook = action.payload;
+        const bookIndex = state.books.findIndex(
+          (book) => book.id === updatedBook.id
+        );
+        if (bookIndex !== -1) {
+          state.books[bookIndex] = updatedBook;
+        }
+        const filteredIndex = state.filteredBooks.findIndex(
+          (book) => book.id === updatedBook.id
+        );
+        if (filteredIndex !== -1) {
+          state.filteredBooks[filteredIndex] = updatedBook;
+        }
+        if (state.selectedBook?.id === updatedBook.id) {
+          state.selectedBook = updatedBook;
+        }
+      })
+      .addCase(updateBookStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || "שגיאה בעת עדכון סטטוס ספר";
+      });
   },
 });
 
-export const {
-  setBooks,
-  filterByCategory,
-  updateBookAvailability,
-  setLoading,
-} = booksSlice.actions;
+export const { filterByCategory, clearSelectedBook, clearError } =
+  booksSlice.actions;
+
+// Add missing functions that are used in components
+export const updateBookAvailability = ({
+  bookId,
+  isActive,
+}: {
+  bookId: number;
+  isActive: boolean;
+}) => ({
+  type: "books/updateBookAvailability",
+  payload: { bookId, isActive },
+});
+
 export default booksSlice.reducer;

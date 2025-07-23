@@ -1,12 +1,25 @@
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAppSelector } from "@/hooks/useRedux";
+import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
+import { fetchBookUserHistory } from "@/store/slices/bookUsersSlice";
 import { History, BookOpen } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
 export const BorrowHistory = () => {
-  const { borrowHistory } = useAppSelector((state) => state.borrows);
+  const dispatch = useAppDispatch();
+  const { bookUserHistory, loading } = useAppSelector(
+    (state) => state.bookUsers
+  );
+  const { user } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    // Load borrow history if user is authenticated
+    if (user) {
+      dispatch(fetchBookUserHistory(user.id));
+    }
+  }, [dispatch, user]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -40,7 +53,7 @@ export const BorrowHistory = () => {
         <p className="text-muted-foreground">All the borrows you have made</p>
       </div>
 
-      {borrowHistory.length === 0 ? (
+      {bookUserHistory.length === 0 ? (
         <div className="text-center py-12">
           <BookOpen className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-semibold mb-2">No History</h3>
@@ -50,7 +63,7 @@ export const BorrowHistory = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {borrowHistory.map((borrow) => (
+          {bookUserHistory.map((borrow) => (
             <Card key={borrow.id}>
               <CardHeader>
                 <div className="flex justify-between items-start">
@@ -103,7 +116,9 @@ export const BorrowHistory = () => {
                   )}
                   <div>
                     <span className="text-muted-foreground">Category:</span>
-                    <div className="font-medium">{borrow.book.category.name}</div>
+                    <div className="font-medium">
+                      {borrow.book.category.name}
+                    </div>
                   </div>
                 </div>
               </CardContent>
