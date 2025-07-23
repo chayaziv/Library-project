@@ -11,7 +11,6 @@ namespace DAL
         public string? Name { get; set; }
         public string? Author { get; set; }
         public int CategoryId { get; set; }
-        [JsonIgnore]
         public virtual Category? Category { get; set; }
         public bool IsActive { get; set; }
     }
