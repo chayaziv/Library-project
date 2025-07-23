@@ -91,6 +91,11 @@ export const MyPurchases = () => {
                     <CardTitle>
                       {userPackage.package?.name ||
                         `Package #${userPackage.packageId}`}
+                      {userPackage.package?.category?.name && (
+                        <Badge className="ml-2 align-middle">
+                          {userPackage.package.category.name}
+                        </Badge>
+                      )}
                     </CardTitle>
                     <p className="text-muted-foreground">
                       {userPackage.package?.category?.name ||

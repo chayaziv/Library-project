@@ -77,6 +77,30 @@ export const BookList = () => {
     }
   };
 
+  // Helper: does user have a suitable package for this book's category?
+  const hasSuitablePackage = (book) => {
+    return userPackages.some(
+      (pkg) =>
+        pkg.isActive &&
+        pkg.remainingPoints > 0 &&
+        pkg.package &&
+        pkg.package.categoryId === book.categoryId
+    );
+  };
+
+  // Helper: get remaining points for this category
+  const getRemainingPointsForCategory = (book) => {
+    return userPackages
+      .filter(
+        (pkg) =>
+          pkg.isActive &&
+          pkg.remainingPoints > 0 &&
+          pkg.package &&
+          pkg.package.categoryId === book.categoryId
+      )
+      .reduce((total, pkg) => total + pkg.remainingPoints, 0);
+  };
+
   // Calculate total remaining books across all active packages
   const totalRemainingBooks = userPackages
     .filter((pkg) => pkg.isActive)
@@ -148,49 +172,61 @@ export const BookList = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredBooks.map((book) => (
-            <Card
-              key={book.id}
-              className="hover:shadow-lg transition-shadow cursor-pointer"
-              onClick={() => handleBorrowBook(book.id)}
-            >
-              <CardHeader>
-                <div className="flex justify-between items-start mb-2">
-                  <CardTitle className="text-lg line-clamp-2">
-                    {book.name}
-                  </CardTitle>
-                  <Badge
-                    className={getCategoryColor(book.category?.name || "")}
-                  >
-                    {book.category?.name}
-                  </Badge>
-                </div>
-                <p className="text-muted-foreground text-sm">
-                  By: {book.author}
-                </p>
-              </CardHeader>
-
-              <CardContent>
-                <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                  {book.name}
-                </p>
-
-                <div className="flex items-center justify-between">
-                  <div className="text-sm text-muted-foreground">
-                    {book.isActive ? "Available" : "Not Available"}
+          {filteredBooks.map((book) => {
+            const canBorrow =
+              book.isActive &&
+              hasSuitablePackage(book) &&
+              getRemainingPointsForCategory(book) > 0;
+            return (
+              <Card key={book.id} className="hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <div className="flex justify-between items-start mb-2">
+                    <CardTitle className="text-lg line-clamp-2">
+                      {book.name}
+                    </CardTitle>
+                    <Badge
+                      className={getCategoryColor(book.category?.name || "")}
+                    >
+                      {book.category?.name}
+                    </Badge>
                   </div>
-                  <Button
-                    size="sm"
-                    disabled={!book.isActive || totalRemainingBooks <= 0}
-                    className="flex items-center gap-2"
-                  >
-                    <BookOpen className="h-4 w-4" />
-                    Borrow
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <p className="text-muted-foreground text-sm">
+                    By: {book.author}
+                  </p>
+                </CardHeader>
+
+                <CardContent>
+                  <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+                    {book.name}
+                  </p>
+
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-sm text-muted-foreground">
+                      {book.isActive ? "Available" : "Not Available"}
+                    </div>
+                    <Button
+                      size="sm"
+                      disabled={!canBorrow}
+                      className="flex items-center gap-2"
+                      onClick={() => canBorrow && handleBorrowBook(book.id)}
+                    >
+                      <BookOpen className="h-4 w-4" />
+                      Borrow
+                    </Button>
+                    {!canBorrow && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => navigate("/packages")}
+                      >
+                        Buy Package
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 
