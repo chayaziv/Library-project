@@ -35,9 +35,9 @@ namespace Project.Controllers
             return Ok(result);
         }
         [HttpGet("{userId}/history")]
-        public IActionResult Get(int userId)
+        public IActionResult GetHistory(int userId)
         {
-            var result = _bookUserRep.GetAll(bu => bu.UserId == userId && bu.Status == BookUserStatus.Active);
+            var result = _bookUserRep.GetAll(bu => bu.UserId == userId);
             return Ok(result);
         }
         [HttpPost]
