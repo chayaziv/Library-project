@@ -115,7 +115,7 @@ namespace Project.Controllers
             var books = _bookUserRepository.GetAll(bu => bu.UserId == userId && bu.IsActiveForUser == isActive);
             return Ok(books);
         }
-       public class ReqPurchase
+        public class ReqPurchase
         {
           public  int packageId {  get; set; }
         }
@@ -133,7 +133,7 @@ namespace Project.Controllers
             var packageUser = new PackageUser
             {
                 UserId = userId,
-                PackageId = packageId,
+                PackageId = packageId.packageId,
                 IsActive = true,
                 RemainingPoints = package.PointCount,
                 PurchaseDate = DateTime.UtcNow
@@ -144,19 +144,22 @@ namespace Project.Controllers
 
         }
 
-
+        public class ReqAdd
+        {
+            public int bookId { get; set; }
+        }
 
 
 
 
         [HttpPost("{userId}/books")]
-        public ActionResult<PackageUserDto> AddBooks(int userId, [FromBody] int bookId)
+        public ActionResult<PackageUserDto> AddBooks(int userId, [FromBody] ReqAdd bookId)
         {
             var user = UserRepository.GetById(userId);
             if (user == null)
                 return NotFound("User not found");
 
-            var book = _bookRepository.GetById(bookId);
+            var book = _bookRepository.GetById(bookId.bookId);
             if (book == null)
                 return NotFound("Book not found");
 
