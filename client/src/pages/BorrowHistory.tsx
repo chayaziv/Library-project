@@ -22,25 +22,51 @@ export const BorrowHistory = () => {
     }
   }, [dispatch, user]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (status: string | number) => {
+    // Convert status to string if it's a number
+    const statusStr = String(status);
+
+    switch (statusStr) {
+      case "Completed":
       case "completed":
+      case "1":
         return "bg-green-100 text-green-800";
+      case "Cancelled":
       case "cancelled":
+      case "2":
         return "bg-red-100 text-red-800";
+      case "Active":
+      case "active":
+      case "0":
+        return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
     }
   };
 
-  const getStatusText = (status: string) => {
-    switch (status) {
+  const getStatusText = (status: string | number) => {
+    console.log("Status received:", status, typeof status);
+    // Convert status to string if it's a number
+    const statusStr = String(status);
+
+    switch (statusStr) {
+      case "Completed":
       case "completed":
-        return "Completed";
+        return "COMPLETE";
+      case "Cancelled":
       case "cancelled":
-        return "Cancelled";
+        return "CANCEL";
+      case "Active":
+      case "active":
+        return "ACTIVE";
+      case "0":
+        return "ACTIVE";
+      case "1":
+        return "COMPLETE";
+      case "2":
+        return "CANCEL";
       default:
-        return status;
+        return statusStr;
     }
   };
 

@@ -94,6 +94,7 @@ export const UpdateBorrow = () => {
       await dispatch(
         updateBookUser({
           bookUserId: selectedBorrow.id,
+          borrowDate: data.borrowDate,
           returnDate: data.returnDate,
         })
       ).unwrap();
@@ -170,6 +171,39 @@ export const UpdateBorrow = () => {
           </CardContent>
         </Card>
 
+        {/* Current Dates */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Current Dates
+            </CardTitle>
+            <CardDescription>
+              Current borrow and return dates for this book
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-muted-foreground">
+                  Current Borrow Date
+                </div>
+                <div className="text-lg font-semibold">
+                  {format(new Date(selectedBorrow.borrowDate), "dd/MM/yyyy")}
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-muted-foreground">
+                  Current Return Date
+                </div>
+                <div className="text-lg font-semibold">
+                  {format(new Date(selectedBorrow.returnDate), "dd/MM/yyyy")}
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Date Form */}
         <Card>
           <CardHeader>
@@ -189,7 +223,7 @@ export const UpdateBorrow = () => {
                   name="borrowDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Borrow Date</FormLabel>
+                      <FormLabel>New Borrow Date</FormLabel>
                       <FormControl>
                         <Input
                           type="date"
@@ -207,7 +241,7 @@ export const UpdateBorrow = () => {
                   name="returnDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Return Date</FormLabel>
+                      <FormLabel>New Return Date</FormLabel>
                       <FormControl>
                         <Input
                           type="date"
