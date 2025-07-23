@@ -60,18 +60,6 @@ export const updatePackagePoints = createAsyncThunk(
   }
 );
 
-// New function to decrement package points on the server
-export const decrementPackagePoints = createAsyncThunk(
-  "packages/decrementPoints",
-  async (packageUserId: number) => {
-    const res = await axios.put<PackageUser>(
-      `${BASE_URL}/package-users/${packageUserId}/decrement`,
-      {}
-    );
-    return res.data;
-  }
-);
-
 const initialState: PackagesState = {
   availablePackages: [],
   userPackages: [],
@@ -112,18 +100,37 @@ const packagesSlice = createSlice({
       state.error = "שגיאה בעת רכישת חבילה";
     },
     // Local decrement for immediate UI feedback
-    decrementPackageBooks: (state) => {
-      if (state.activePackage && state.activePackage.remainingPoints > 0) {
-        state.activePackage.remainingPoints -= 1;
-        // If active package is depleted, find the next available package
-        if (state.activePackage.remainingPoints === 0) {
-          const nextActivePackage = state.userPackages.find(
-            (pkg) =>
-              pkg.isActive &&
-              pkg.remainingPoints > 0 &&
-              pkg.id !== state.activePackage?.id
-          );
-          state.activePackage = nextActivePackage || null;
+    decrementPackageBooks: (state, action: PayloadAction<number>) => {
+      const categoryId = action.payload;
+      // Find the relevant package for this category
+      const relevantPackage = state.userPackages.find(
+        (pkg) =>
+          pkg.isActive &&
+          pkg.package?.categoryId === categoryId &&
+          pkg.remainingPoints > 0
+      );
+
+      if (relevantPackage) {
+        relevantPackage.remainingPoints -= 1;
+        // If package is depleted, deactivate it
+        if (relevantPackage.remainingPoints === 0) {
+          relevantPackage.isActive = false;
+        }
+
+        // Update active package if needed
+        if (state.activePackage?.id === relevantPackage.id) {
+          if (relevantPackage.remainingPoints === 0) {
+            // Find next available package
+            const nextActivePackage = state.userPackages.find(
+              (pkg) =>
+                pkg.isActive &&
+                pkg.remainingPoints > 0 &&
+                pkg.id !== relevantPackage.id
+            );
+            state.activePackage = nextActivePackage || null;
+          } else {
+            state.activePackage = relevantPackage;
+          }
         }
       }
     },
@@ -214,38 +221,6 @@ const packagesSlice = createSlice({
       .addCase(updatePackagePoints.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || "שגיאה בעת עדכון נקודות חבילה";
-      })
-      // Decrement package points cases
-      .addCase(decrementPackagePoints.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(decrementPackagePoints.fulfilled, (state, action) => {
-        state.loading = false;
-        const updatedPackage = action.payload;
-        const index = state.userPackages.findIndex(
-          (pkg) => pkg.id === updatedPackage.id
-        );
-        if (index !== -1) {
-          state.userPackages[index] = updatedPackage;
-        }
-        if (state.activePackage?.id === updatedPackage.id) {
-          state.activePackage = updatedPackage;
-          // If this package is depleted, find the next available package
-          if (updatedPackage.remainingPoints === 0) {
-            const nextActivePackage = state.userPackages.find(
-              (pkg) =>
-                pkg.isActive &&
-                pkg.remainingPoints > 0 &&
-                pkg.id !== updatedPackage.id
-            );
-            state.activePackage = nextActivePackage || null;
-          }
-        }
-      })
-      .addCase(decrementPackagePoints.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message || "שגיאה בעת עדכון נקודות חבילה";
       });
   },
 });
@@ -267,8 +242,9 @@ export const purchasePackageError = () => ({
   type: "packages/purchasePackageError",
 });
 
-export const decrementPackageBooks = () => ({
+export const decrementPackageBooks = (categoryId: number) => ({
   type: "packages/decrementPackageBooks",
+  payload: categoryId,
 });
 
 export default packagesSlice.reducer;

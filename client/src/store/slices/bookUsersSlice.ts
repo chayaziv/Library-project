@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { Book, BookUser, BookUsersState } from "../../types";
+import { Book, BookUser, BookUsersState, BorrowRequestDto } from "../../types";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5130/api";
 
@@ -26,23 +26,11 @@ export const fetchBookUserHistory = createAsyncThunk(
 
 export const createBookUser = createAsyncThunk(
   "bookUsers/create",
-  async ({
-    userId,
-    bookId,
-    borrowDate,
-    returnDate,
-  }: {
-    userId: number;
-    bookId: number;
-    borrowDate: string;
-    returnDate: string;
-  }) => {
-    const res = await axios.post<BookUser>(`${BASE_URL}/bookUser`, {
-      userId,
-      bookId,
-      borrowDate,
-      returnDate,
-    });
+  async (borrowRequest: BorrowRequestDto) => {
+    const res = await axios.post<BookUser>(
+      `${BASE_URL}/bookUser`,
+      borrowRequest
+    );
     return res.data;
   }
 );

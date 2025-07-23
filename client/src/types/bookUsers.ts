@@ -1,5 +1,12 @@
 import { Book } from "./books";
 
+export interface BorrowRequestDto {
+  userId: number;
+  bookId: number;
+  borrowDate: string;
+  returnDate: string;
+}
+
 export interface BookUser {
   id: number;
   userId: number;
