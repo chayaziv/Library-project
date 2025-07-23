@@ -16,7 +16,7 @@ namespace Project.Controllers
             public int BookId { get; set; }
 
             public DateTime BorrowDate { get; set; }
-            public DateTime ReturnDate { get; set; } 
+            public DateTime ReturnDate { get; set; }
         }
          private IRepository<User> _userRep;
          private IRepository<Book> _bookRep;
@@ -91,6 +91,10 @@ namespace Project.Controllers
             bookuser.Status = BookUserStatus.Cancelled;
             var bu=_bookUserRep.Update(bookuser);
             if (bu == null) return BadRequest("update fail");
+            var book=_bookRep.GetById(bookuser.BookId);
+            if (book == null) return BadRequest("book is not exsist");
+            book.IsActive = true;
+            _bookRep.Update(book);
             return Ok(bu);
         }
 
@@ -103,6 +107,10 @@ namespace Project.Controllers
             bookuser.Status = BookUserStatus.Completed;
             var bu = _bookUserRep.Update(bookuser);
             if (bu == null) return BadRequest("update fail");
+            var book = _bookRep.GetById(bookuser.BookId);
+            if (book == null) return BadRequest("book is not exsist");
+            book.IsActive = true;
+            _bookRep.Update(book);
             return Ok(bu);
         }
     }
