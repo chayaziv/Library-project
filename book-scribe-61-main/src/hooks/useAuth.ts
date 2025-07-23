@@ -1,16 +1,10 @@
 import { useAppSelector, useAppDispatch } from "./useRedux";
-import {
-  loginStart,
-  loginSuccess,
-  loginFailure,
-  logout,
-  User,
-} from "../store/slices/authSlice";
+import { loginUser, registerUser, logout } from "../store/slices/authSlice";
+import { User } from "../types";
 import { toast } from "@/hooks/use-toast";
-import { apiService, UserDto } from "@/services/api";
 
 interface LoginData {
-  name: string;
+  email: string;
   password: string;
 }
 
@@ -29,96 +23,46 @@ export const useAuth = () => {
 
   const login = async (data: LoginData) => {
     try {
-      dispatch(loginStart());
+      const result = await dispatch(loginUser(data)).unwrap();
 
-      const response = await apiService.login(data);
-
-      if (response.success && response.data) {
-        const user: User = {
-          id: response.data.id || 0,
-          name: response.data.name,
-          password: response.data.password,
-          email: response.data.email,
-          phone: response.data.phone,
-        };
-
-        dispatch(loginSuccess(user));
-        toast({
-          title: "התחברות בוצעה בהצלחה",
-          description: `שלום ${user.name}!`,
-        });
-        return { success: true, user };
-      } else {
-        dispatch(loginFailure());
-        toast({
-          title: "שגיאה בהתחברות",
-          description: response.error || "תעודת זהות או סיסמה שגויים",
-          variant: "destructive",
-        });
-        return {
-          success: false,
-          error: response.error || "Invalid credentials",
-        };
-      }
-    } catch (error) {
-      dispatch(loginFailure());
+      toast({
+        title: "התחברות בוצעה בהצלחה",
+        description: `שלום ${result.name}!`,
+      });
+      return { success: true, user: result };
+    } catch (error: any) {
       toast({
         title: "שגיאה בהתחברות",
-        description: "אירעה שגיאה בעת ההתחברות",
+        description: error.message || "תעודת זהות או סיסמה שגויים",
         variant: "destructive",
       });
-      return { success: false, error: "Login failed" };
+      return { success: false, error: error.message || "Login failed" };
     }
   };
 
   const register = async (data: RegisterData) => {
     try {
-      dispatch(loginStart());
+      const result = await dispatch(
+        registerUser({
+          name: data.name,
+          email: data.email || "",
+          password: data.password,
+          phone: data.phone,
+        })
+      ).unwrap();
 
-      const userData: UserDto = {
-        name: data.name,
-        password: data.password,
-        email: data.email,
-        phone: data.phone,
-      };
-
-      const response = await apiService.register(userData);
-
-      if (response.success && response.data) {
-        const user: User = {
-          id: response.data.id || 0,
-          name: response.data.name,
-          password: response.data.password,
-          email: response.data.email,
-          phone: response.data.phone,
-        };
-
-        dispatch(loginSuccess(user));
-        toast({
-          title: "הרשמה בוצעה בהצלחה",
-          description: `ברוך הבא ${user.name}!`,
-        });
-        return { success: true, user };
-      } else {
-        dispatch(loginFailure());
-        toast({
-          title: "שגיאה בהרשמה",
-          description: response.error || "משתמש עם שם זה כבר קיים במערכת",
-          variant: "destructive",
-        });
-        return {
-          success: false,
-          error: response.error || "User already exists",
-        };
-      }
-    } catch (error) {
-      dispatch(loginFailure());
+      toast({
+        title: "הרשמה בוצעה בהצלחה",
+        description: `ברוך הבא ${result.name}!`,
+      });
+      return { success: true, user: result };
+    } catch (error: any) {
       toast({
         title: "שגיאה בהרשמה",
-        description: "אירעה שגיאה בעת ההרשמה",
+        description: error.message || "משתמש עם שם זה כבר קיים במערכת",
         variant: "destructive",
       });
-      return { success: false, error: "Registration failed" };
+      return { success: false, error: error.message || "Registration failed" };
     }
   };
 

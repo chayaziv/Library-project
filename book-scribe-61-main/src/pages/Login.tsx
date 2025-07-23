@@ -25,7 +25,7 @@ import { useAppSelector } from "@/hooks/useRedux";
 import { Loader2 } from "lucide-react";
 
 const loginSchema = z.object({
-  name: z.string().min(2, "Name must contain at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must contain at least 6 characters"),
 });
 
@@ -39,7 +39,7 @@ export const Login = () => {
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      name: "",
+      email: "",
       password: "",
     },
   });
@@ -57,7 +57,7 @@ export const Login = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     await login({
-      name: data.name,
+      email: data.email,
       password: data.password,
     });
   };
@@ -66,7 +66,7 @@ export const Login = () => {
     const currentData = form.getValues();
     navigate("/register", {
       state: {
-        name: currentData.name,
+        email: currentData.email,
         password: currentData.password,
       },
     });
@@ -86,12 +86,16 @@ export const Login = () => {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
-                name="name"
+                name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter your name" {...field} />
+                      <Input
+                        type="email"
+                        placeholder="Enter your email"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -135,7 +139,7 @@ export const Login = () => {
           </Form>
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>For testing: Use any name and password</p>
+            <p>For testing: Use any email and password</p>
           </div>
         </CardContent>
       </Card>

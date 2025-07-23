@@ -1,7 +1,7 @@
 // API Configuration
 export const API_CONFIG = {
   // Update this URL to match your friend's server
-  BASE_URL: "http://localhost:5000/api",
+  BASE_URL: "http://localhost:5130/api",
 
   // Timeout for API requests (in milliseconds)
   TIMEOUT: 10000,

@@ -59,7 +59,7 @@ class ApiService {
   }
 
   async login(userData: {
-    name: string;
+    email: string;
     password: string;
   }): Promise<ApiResponse<UserDto>> {
     return this.request<UserDto>("/User/login", {

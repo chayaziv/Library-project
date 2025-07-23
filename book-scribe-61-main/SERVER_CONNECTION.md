@@ -58,7 +58,7 @@ interface User {
 
 ```typescript
 {
-  name: string; // User's name
+  email: string; // User's email
   password: string; // User's password
 }
 ```
@@ -133,7 +133,7 @@ public class UserController : ControllerBase
 
 ## Notes
 
-- The server expects `name` and `password` for login
-- The server validates that `name` and `password` are not null/empty
+- The server expects `email` and `password` for login
+- The server validates that `email` and `password` are not null/empty
 - The server checks for existing users during registration
 - All API responses are wrapped in a standard format with success/error indicators

@@ -1,15 +1,26 @@
+import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useAppSelector } from "@/hooks/useRedux";
+import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
+import { fetchUserPackages } from "@/store/slices/packagesSlice";
 import { useNavigate } from "react-router-dom";
 import { CreditCard, Package, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 
 export const MyPurchases = () => {
-  const { userPackages } = useAppSelector((state) => state.packages);
+  const dispatch = useAppDispatch();
+  const { userPackages, loading } = useAppSelector((state) => state.packages);
+  const { user } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // Load user packages if user is authenticated
+    if (user) {
+      dispatch(fetchUserPackages(user.id));
+    }
+  }, [dispatch, user]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -50,7 +61,7 @@ export const MyPurchases = () => {
                   <div>
                     <CardTitle>{userPackage.package.name}</CardTitle>
                     <p className="text-muted-foreground">
-                      {userPackage.package.description}
+                      {userPackage.package.name}
                     </p>
                   </div>
                   <Badge
@@ -79,13 +90,13 @@ export const MyPurchases = () => {
                       Books in Package:
                     </span>
                     <div className="font-medium">
-                      {userPackage.package.booksIncluded}
+                      {userPackage.package.pointCount}
                     </div>
                   </div>
                   <div>
                     <span className="text-muted-foreground">Remaining:</span>
                     <div className="font-medium">
-                      {userPackage.remainingBooks} books
+                      {userPackage.remainingPoints} books
                     </div>
                   </div>
                   <div>

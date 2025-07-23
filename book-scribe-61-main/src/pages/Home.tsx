@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/useAuth';
-import { useAppSelector } from '@/hooks/useRedux';
-import { BookOpen, Package, Users, Zap } from 'lucide-react';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useAppSelector } from "@/hooks/useRedux";
+import { BookOpen, Package, Users, Zap } from "lucide-react";
 
-const Index = () => {
+const Home = () => {
   const { isAuthenticated } = useAuth();
   const { activePackage } = useAppSelector((state) => state.packages);
   const navigate = useNavigate();
@@ -25,19 +25,27 @@ const Index = () => {
           </p>
           {!isAuthenticated ? (
             <div className="flex gap-4 justify-center">
-              <Button size="lg" onClick={() => navigate('/login')}>
+              <Button size="lg" onClick={() => navigate("/login")}>
                 Login
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate('/register')}>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate("/register")}
+              >
                 Register
               </Button>
             </div>
           ) : (
             <div className="flex gap-4 justify-center">
-              <Button size="lg" onClick={() => navigate('/books')}>
+              <Button size="lg" onClick={() => navigate("/books")}>
                 Browse Books
               </Button>
-              <Button size="lg" variant="outline" onClick={() => navigate('/packages')}>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate("/packages")}
+              >
                 View Packages
               </Button>
             </div>
@@ -52,15 +60,16 @@ const Index = () => {
               Choose from borrow packages tailored to your taste
             </p>
           </div>
-          
+
           <div className="text-center p-6">
             <BookOpen className="h-12 w-12 mx-auto mb-4 text-primary" />
             <h3 className="text-xl font-semibold mb-2">Variety of Books</h3>
             <p className="text-muted-foreground">
-              Thousands of books in different categories: thriller, romance, comics and more
+              Thousands of books in different categories: thriller, romance,
+              comics and more
             </p>
           </div>
-          
+
           <div className="text-center p-6">
             <Zap className="h-12 w-12 mx-auto mb-4 text-primary" />
             <h3 className="text-xl font-semibold mb-2">Quick Borrowing</h3>
@@ -74,4 +83,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default Home;
