@@ -29,13 +29,13 @@ namespace Project.Controllers
             _bookUserRep = bookUserRep;
         }
         [HttpGet("{userId}/getActive")]
-        public IActionResult Get(int userId)
+        public ActionResult<List<BookUser>> Get(int userId)
         {
             var result = _bookUserRep.GetAll(bu => bu.UserId == userId && bu.Status == BookUserStatus.Active);
             return Ok(result);
         }
         [HttpGet("{userId}/history")]
-        public IActionResult GetHistory(int userId)
+        public ActionResult<List<BookUser>> GetHistory(int userId)
         {
             var result = _bookUserRep.GetAll(bu => bu.UserId == userId);
             return Ok(result);
