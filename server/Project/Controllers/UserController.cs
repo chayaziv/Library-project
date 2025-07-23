@@ -187,11 +187,8 @@ namespace Project.Controllers
                 User = user,
                 Book = book
             };
-
-            // הוספה לרשימת הספרים של המשתמש
             user.BooksUser.Add(newBookUser);
-            //user.BooksUser
-            //UserRepository.Update(user);
+            UserRepository.Update(user);
             return book;
         }
 
