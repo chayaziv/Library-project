@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DAL
 {
@@ -9,7 +10,8 @@ namespace DAL
         public string Password { get; set; }
         public string? Name { get; set; }
         public string? Email { get; set; }        
-        public string?  Phone { get; set; }  
+        public string?  Phone { get; set; }
+        [JsonIgnore]
         public virtual List<PackageUser>? PackageUsers { get; set; }
         public virtual List<BookUser>? BooksUser { get; set; }
 

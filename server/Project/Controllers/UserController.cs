@@ -164,7 +164,10 @@ namespace Project.Controllers
             var book = _bookRepository.GetById(bookId.bookId);
             if (book == null)
                 return NotFound("Book not found");
-
+            if(book.IsActive==false)
+            {
+                return BadRequest("the book is not aviable");
+            }
             var matchingPackageUser = user.PackageUsers
             .Where(pu => pu.Package != null &&
                      pu.Package.CategoryId == book.CategoryId &&
@@ -175,8 +178,22 @@ namespace Project.Controllers
                 return BadRequest("No available package with points for this book's category.");
             book.IsActive = false;
             _bookRepository.Update(book);
-            UserRepository.Update(user);
-            return Ok(book);
+            matchingPackageUser.RemainingPoints--;
+            _packageUserRepository.Update(matchingPackageUser);
+            var newBookUser = new BookUser
+            {
+                UserId = userId,
+                BookId = book.Id,
+                IsActiveForUser = true,
+                User = user,
+                Book = book
+            };
+
+            // הוספה לרשימת הספרים של המשתמש
+            user.BooksUser.Add(newBookUser);
+            //user.BooksUser
+            //UserRepository.Update(user);
+            return book;
         }
 
     }
