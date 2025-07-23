@@ -109,5 +109,24 @@ namespace Project.Controllers
             _bookRep.Update(book);
             return Ok(bu);
         }
+        public class UpdateBorrowDatesDto
+        {
+            public DateTime BorrowDate { get; set; }
+            public DateTime ReturnDate { get; set; }
+        }
+
+        [HttpPut("updateDate/{userBookId}")]
+        public ActionResult<BookUser> Update(int bookuserid, [FromBody] UpdateBorrowDatesDto updateBorrowDatesDto)
+        {
+            var bookuser = _bookUserRep.GetById(bookuserid);
+            if (bookuser == null) return BadRequest("no exist");
+            bookuser.BorrowDate=updateBorrowDatesDto.BorrowDate;
+            bookuser.ReturnDate=updateBorrowDatesDto.ReturnDate;
+            bookuser.CanModify = updateBorrowDatesDto.BorrowDate > DateTime.Now ? true : false;
+            var bu = _bookUserRep.Update(bookuser);
+            if (bu == null) return BadRequest("update fail");
+
+            return Ok(bu);
+        }
     }
 }
