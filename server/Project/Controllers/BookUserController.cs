@@ -28,20 +28,20 @@ namespace Project.Controllers
             _bookRep = bookRep;
             _bookUserRep = bookUserRep;
         }
-        [HttpGet("{userId}/getActive")]
+        [HttpGet("getActive/{userId}")]
         public ActionResult<List<BookUser>> Get(int userId)
         {
             var result = _bookUserRep.GetAll(bu => bu.UserId == userId && bu.Status == BookUserStatus.Active);
             return Ok(result);
         }
-        [HttpGet("{userId}/history")]
+        [HttpGet("getActive/{userId}")]
         public ActionResult<List<BookUser>> GetHistory(int userId)
         {
             var result = _bookUserRep.GetAll(bu => bu.UserId == userId);
             return Ok(result);
         }
         [HttpPost]
-      public ActionResult<BookUser> AddBook([FromBody] BorrowRequestDto borrow)
+        public ActionResult<BookUser> AddBook([FromBody] BorrowRequestDto borrow)
         {
             var user = _userRep.GetById(borrow.UserId);
             if (user == null)
@@ -79,44 +79,27 @@ namespace Project.Controllers
             user.BooksUser.Add(bookUser);
             _userRep.Update(user);
             return Ok(bookUser);
-
-
-
-
-
-
-
         }
-        // GET: api/<BookUserController>
-        //[HttpGet]
-        //public IEnumerable<string> Get()
-        //{
-        //    return new string[] { "value1", "value2" };
-        //}
 
-        //// GET api/<BookUserController>/5
-        //[HttpGet("{id}")]
-        //public string Get(int id)
-        //{
-        //    return "value";
-        //}
-
-        //// POST api/<BookUserController>
-        //[HttpPost]
-        //public void Post([FromBody] string value)
-        //{
-        //}
-
-        //// PUT api/<BookUserController>/5
-        //[HttpPut("{id}")]
-        //public void Put(int id, [FromBody] string value)
-        //{
-        //}
-
-        //// DELETE api/<BookUserController>/5
-        //[HttpDelete("{id}")]
-        //public void Delete(int id)
-        //{
-        //}
+        [HttpPut("cancel/{userBookId")]
+        public ActionResult<BookUser> ChangeStatusToCancle(int bookuserid)
+        {
+            var bookuser=_bookUserRep.GetById(bookuserid);
+            if (bookuser == null) return BadRequest("no exist");
+            bookuser.Status = BookUserStatus.Cancelled;
+            var bu=_bookUserRep.Update(bookuser);
+            if (bu == null) return BadRequest("update fail");
+            return Ok(bu);
+        }
+        [HttpPut("complete/{userBookId")]
+        public ActionResult<BookUser> ChangeStatusToComplete(int bookuserid)
+        {
+            var bookuser = _bookUserRep.GetById(bookuserid);
+            if (bookuser == null) return BadRequest("no exist");
+            bookuser.Status = BookUserStatus.Completed;
+            var bu = _bookUserRep.Update(bookuser);
+            if (bu == null) return BadRequest("update fail");
+            return Ok(bu);
+        }
     }
 }
