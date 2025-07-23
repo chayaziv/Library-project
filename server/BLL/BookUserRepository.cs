@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using DAL;
-using Microsoft.EntityFrameworkCore;
+
 
 namespace BLL
 {
     public class BookUserRepository : IRepository<BookUser>
     {
-        private Dblibrary Dblibrary;
+        private readonly Dblibrary Dblibrary;
 
         public BookUserRepository(Dblibrary dblibrary)
         {

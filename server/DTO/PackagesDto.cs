@@ -1,10 +1,4 @@
 ﻿using DAL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace DTO
 {
     public class PackageUserDto
@@ -17,7 +11,5 @@ namespace DTO
         public int RemainingPoints { get; set; }
         public DateTime PurchaseDate { get; set; }
     }
-   
-
-
+ 
 }

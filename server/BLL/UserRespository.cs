@@ -5,7 +5,7 @@ namespace BLL
     public class UserRespository : IRepository<User>
 
     {
-        private Dblibrary Dblibrary;
+        private readonly Dblibrary Dblibrary;
 
         public UserRespository(Dblibrary dblibrary)
         {

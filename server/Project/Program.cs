@@ -1,16 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using DAL;
 using BLL;
-using AutoMapper;
-using BLL.BLL;
 using System.Text.Json.Serialization;
 
-// Replace the problematic line with the correct configuration for JSON options.
-
-
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -40,11 +33,6 @@ builder.Services.AddCors(options =>
         }
        );
 });
-
-
-
-// ... existing code ...
-
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -52,16 +40,11 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-//app.UseHttpsRedirection();
-
 app.UseCors();
 
 app.UseAuthorization();

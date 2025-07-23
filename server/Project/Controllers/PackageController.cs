@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
 using BLL;
 using DAL;
@@ -11,7 +11,7 @@ namespace Project.Controllers
     [EnableCors]
     public class PackageController : ControllerBase
     {
-        private IRepository<Package> PackageRepository;
+        private readonly IRepository<Package> PackageRepository;
 
         public PackageController(IRepository<Package> PackageRepository)
         {

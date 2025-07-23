@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using BLL;
 using DAL;
 using Microsoft.AspNetCore.Cors;
@@ -11,7 +10,7 @@ namespace Project.Controllers
     [EnableCors]
     public class CategoryController : ControllerBase
     {
-        private IRepository<Category> CategoryRepository;
+        private readonly IRepository<Category> CategoryRepository;
 
         public CategoryController(IRepository<Category> CategoryRepository)
         {

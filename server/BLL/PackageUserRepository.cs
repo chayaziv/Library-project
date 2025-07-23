@@ -1,20 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using DAL;
+using System.Linq.Expressions;
 
 namespace BLL
-{
-    using DAL;
-    using Microsoft.EntityFrameworkCore;
-    using System.Linq.Expressions;
-    namespace BLL
     {
         public class PackageUserRespository : IRepository<PackageUser>
 
         {
-            private Dblibrary Dblibrary;
+            private readonly Dblibrary Dblibrary;
 
             public PackageUserRespository(Dblibrary dblibrary)
             {
@@ -71,4 +64,4 @@ namespace BLL
             }
         }
     }
-}
+

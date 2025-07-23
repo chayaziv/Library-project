@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using BLL;
 using DAL;
 using Microsoft.AspNetCore.Cors;
@@ -12,7 +11,7 @@ namespace Project.Controllers
     [EnableCors]
     public class BooksController : ControllerBase
     {
-        private IRepository<Book> booksRepository;
+        private readonly IRepository<Book> booksRepository;
 
         public BooksController(IRepository<Book> booksRepository)
         {

@@ -2,7 +2,6 @@
 using DAL;
 
 using AutoMapper;
-using BLL.cast;
 using System.Linq.Expressions;
 
 namespace BLL
@@ -11,8 +10,8 @@ namespace BLL
     public class BooksRepository : IRepository<Book>
 
     {
-        private Dblibrary Dblibrary;
-        private IMapper mapper;
+        private readonly Dblibrary Dblibrary;
+        private readonly IMapper mapper;
 
         public BooksRepository(Dblibrary dblibrary,IMapper mapper)
         {

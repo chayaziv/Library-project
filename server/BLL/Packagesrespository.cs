@@ -5,7 +5,7 @@ namespace BLL
     public class PackagesRespository : IRepository<Package>
 
     {
-        private Dblibrary Dblibrary;
+        private readonly Dblibrary Dblibrary;
 
         public PackagesRespository(Dblibrary dblibrary)
         {

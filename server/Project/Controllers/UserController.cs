@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using BLL;
-using BLL.BLL;
 using DAL;
 using DTO;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+
 namespace Project.Controllers
 {
     [Route("api/[controller]")]
@@ -14,12 +12,12 @@ namespace Project.Controllers
     [EnableCors]
     public class UserController : ControllerBase
     {
-        private IRepository<User> UserRepository;
-        private IMapper mapper;
-        private IRepository<PackageUser> _packageUserRepository;
-        private IRepository<BookUser> _bookUserRepository;
-        private IRepository<Book> _bookRepository;
-        private IRepository<Package> _packageRepository;
+        private readonly IRepository<User> UserRepository;
+        private readonly IMapper mapper;
+        private readonly IRepository<PackageUser> _packageUserRepository;
+        private readonly IRepository<BookUser> _bookUserRepository;
+        private readonly IRepository<Book> _bookRepository;
+        private readonly IRepository<Package> _packageRepository;
 
         public UserController(IRepository<User> UserRepository ,IMapper mapper,IRepository<PackageUser>package,IRepository<BookUser> repository,IRepository<Package> repository1,IRepository<Book> repository2)
         {
@@ -33,16 +31,11 @@ namespace Project.Controllers
         [HttpPost("login")]
         public ActionResult<UserDto> GetUserById(UserDto s)
         {
-            Console.WriteLine(  "---------------------------------");
-            Console.WriteLine(s.Email);
-            Console.WriteLine(mapper.Map<User>(s));
-
-            Console.WriteLine("---------------------------------");
             User b = UserRepository.GetBy(mapper.Map<User>(s));
             if (b == null)
-                return NotFound("the User isnot found");//404
+                return NotFound("the User isnot found");
 
-            return Ok(mapper.Map<UserDto>(b));//200
+            return Ok(mapper.Map<UserDto>(b));
         }
         [HttpPost("register")]
         public ActionResult<UserDto> AddUser([FromBody]UserDto b)
@@ -58,8 +51,6 @@ namespace Project.Controllers
             {
                 return BadRequest("User is already exist");
             }
-
-            // יצירת משתמש חדש
             var newUser = mapper.Map<User>(b);
             var newUser1=UserRepository.Add(newUser);
 
@@ -106,7 +97,6 @@ namespace Project.Controllers
         [HttpGet("{userId}/packages")]
         public ActionResult<List<Package>> GetPackagesByActiveStatus(int userId, [FromQuery] bool isActive)
         {
-            Console.WriteLine("----!!!!!!!!!!!!!!!------");
             var packages = _packageUserRepository.GetAll(pu => pu.UserId == userId && pu.IsActive == isActive);
             return Ok(packages);
         }
@@ -118,7 +108,7 @@ namespace Project.Controllers
         }
         public class ReqPurchase
         {
-          public  int packageId {  get; set; }
+          public  int PackageId {  get; set; }
         }
         [HttpPost("{userId}/packages")]
         public ActionResult<PackageUserDto> PurchasePackage(int userId, [FromBody] ReqPurchase packageId)
@@ -128,14 +118,14 @@ namespace Project.Controllers
             if (user == null)
                 return NotFound("User not found");
 
-            var package =_packageRepository.GetById(packageId.packageId);
+            var package =_packageRepository.GetById(packageId.PackageId);
             if (package == null)
                 return NotFound("Package not found");
 
             var packageUser = new PackageUser
             {
                 UserId = userId,
-                PackageId = packageId.packageId,
+                PackageId = packageId.PackageId,
                 IsActive = true,
                 RemainingPoints = package.PointCount,
                 PurchaseDate = DateTime.UtcNow
@@ -148,50 +138,7 @@ namespace Project.Controllers
 
         public class ReqAdd
         {
-            public int bookId { get; set; }
+            public int BookId { get; set; }
         }
-
-
-
-
-        //[HttpPost("{userId}/books")]
-        //public ActionResult<Book> AddBooks(int userId, [FromBody] ReqAdd bookId)
-        //{
-        //    var user = UserRepository.GetById(userId);
-        //    if (user == null)
-        //        return NotFound("User not found");
-
-        //    var book = _bookRepository.GetById(bookId.bookId);
-        //    if (book == null)
-        //        return NotFound("Book not found");
-        //    if(book.IsActive==false)
-        //    {
-        //        return BadRequest("the book is not aviable");
-        //    }
-        //    var matchingPackageUser = user.PackageUsers
-        //    .Where(pu => pu.Package != null &&
-        //             pu.Package.CategoryId == book.CategoryId &&
-        //             pu.RemainingPoints > 0)
-        //     .FirstOrDefault();
-
-        //    if (matchingPackageUser == null)
-        //        return BadRequest("No available package with points for this book's category.");
-        //    book.IsActive = false;
-        //    _bookRepository.Update(book);
-        //    matchingPackageUser.RemainingPoints--;
-        //    _packageUserRepository.Update(matchingPackageUser);
-        //    var newBookUser = new BookUser
-        //    {
-        //        UserId = userId,
-        //        BookId = book.Id,
-        //        IsActiveForUser = true,
-        //        User = user,
-        //        Book = book
-        //    };
-        //    user.BooksUser.Add(newBookUser);
-        //    UserRepository.Update(user);
-        //    return book;
-        //}
-
     }
 }

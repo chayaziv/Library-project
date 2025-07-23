@@ -18,9 +18,9 @@ namespace Project.Controllers
             public DateTime BorrowDate { get; set; }
             public DateTime ReturnDate { get; set; }
         }
-         private IRepository<User> _userRep;
-         private IRepository<Book> _bookRep;
-         private IRepository<BookUser> _bookUserRep;
+         private readonly IRepository<User> _userRep;
+         private readonly IRepository<Book> _bookRep;
+         private readonly IRepository<BookUser> _bookUserRep;
 
         public BookUserController(IRepository<User> userRep, IRepository<Book> bookRep,IRepository<BookUser> bookUserRep)
         {
@@ -28,7 +28,6 @@ namespace Project.Controllers
             _bookRep = bookRep;
             _bookUserRep = bookUserRep;
         }
-        //`${BASE_URL}/users/${userId}/bookUser/getActive`
         [HttpGet("users/{userId}/active")]
         public ActionResult<List<BookUser>> Get(int userId)
         {
@@ -56,7 +55,7 @@ namespace Project.Controllers
                 return BadRequest("the book is not aviable");
             }
 
-            var matchingPackageUser = user.PackageUsers
+            var matchingPackageUser = user?.PackageUsers?
             .Where(pu => pu.Package != null &&
                      pu.Package.CategoryId == book.CategoryId &&
                      pu.RemainingPoints > 0)
@@ -78,7 +77,7 @@ namespace Project.Controllers
                 ReturnDate = borrow.ReturnDate,
                 CanModify = borrow.BorrowDate > DateTime.Now ? true : false,
             };
-            user.BooksUser.Add(bookUser);
+            user?.BooksUser?.Add(bookUser);
             _userRep.Update(user);
             return Ok(bookUser);
         }
@@ -97,8 +96,6 @@ namespace Project.Controllers
             _bookRep.Update(book);
             return Ok(bu);
         }
-
-        //http://localhost:5130/api/bookUser/2/complete
         [HttpPut("{userBookId}/complete")]
         public ActionResult<BookUser> ChangeStatusToComplete(int userBookId)
         {
@@ -126,10 +123,9 @@ namespace Project.Controllers
             if (bookuser == null) return BadRequest("no exist");
             bookuser.BorrowDate=updateBorrowDatesDto.BorrowDate;
             bookuser.ReturnDate=updateBorrowDatesDto.ReturnDate;
-            bookuser.CanModify = updateBorrowDatesDto.BorrowDate > DateTime.Now ? true : false;
+            bookuser.CanModify = updateBorrowDatesDto.BorrowDate > DateTime.Now;
             var bu = _bookUserRep.Update(bookuser);
             if (bu == null) return BadRequest("update fail");
-
             return Ok(bu);
         }
     }

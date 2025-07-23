@@ -5,7 +5,7 @@ namespace BLL
     public class CategoryRepository : IRepository<Category>
 
     {
-        private Dblibrary Dblibrary;
+        private readonly Dblibrary Dblibrary;
 
         public CategoryRepository(Dblibrary dblibrary)
         {
