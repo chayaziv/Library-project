@@ -51,7 +51,7 @@ namespace BLL
             return Dblibrary.BookUser.ToList();
         }
 
-        public List<BookUser> GetAll(Expression<Func<BookUser, bool>>? filter = null)
+        public List<BookUser> GetAll(Expression<Func<BookUser, bool>>? filter)
         {
             IQueryable<BookUser> query = Dblibrary.BookUser;
 

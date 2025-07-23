@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BLL;
+using BLL.BLL;
 using DAL;
 using DTO;
 using Microsoft.AspNetCore.Cors;
@@ -14,11 +15,15 @@ namespace Project.Controllers
     {
         private IRepository<User> UserRepository;
         private IMapper mapper;
+        private IRepository<PackageUser> _packageUserRepository;
+        private IRepository<BookUser> _bookUserRepository;
 
-        public UserController(IRepository<User> UserRepository ,IMapper mapper)
+        public UserController(IRepository<User> UserRepository ,IMapper mapper,IRepository<PackageUser>package,IRepository<BookUser> repository)
         {
             this.UserRepository = UserRepository;
             this.mapper = mapper;
+            _packageUserRepository = package;
+            _bookUserRepository = repository;
         }
         [HttpPost("login")]
         public ActionResult<UserDto> GetUserById(UserDto s)
@@ -92,5 +97,19 @@ namespace Project.Controllers
                 return NotFound("Dont have any User");
             return Ok(s);
         }
+
+        [HttpGet("{userId}/packages")]
+        public IActionResult GetPackagesByActiveStatus(int userId, [FromQuery] bool isActive)
+        {
+            var packages = _packageUserRepository.GetAll(pu => pu.UserId == userId && pu.IsActive == isActive);
+            return Ok(packages);
+        }
+        [HttpGet("{userId}/books")]
+        public IActionResult GetBooksByActiveStatus(int userId, [FromQuery] bool isActive)
+        {
+            var books = _bookUserRepository.GetAll(bu => bu.UserId == userId && bu.IsActiveForUser == isActive);
+            return Ok(books);
+        }
+
     }
 }

@@ -56,16 +56,12 @@ namespace BLL
 
 
         }
-
-        public  List<Book> GetAll()
-        {
-            return Dblibrary.Book.ToList();
-           
-        }
+        
 
         public List<Book> GetAll(Expression<Func<Book, bool>>? filter = null)
         {
-            throw new NotImplementedException();
+            return Dblibrary.Book.ToList();
+
         }
     }
 }

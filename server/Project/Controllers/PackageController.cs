@@ -18,37 +18,36 @@ namespace Project.Controllers
             this.PackageRepository = PackageRepository;
         }
         [HttpGet("get/{id}")]
-        public IActionResult GetBookById(int id)
+        public IActionResult GetPackageById(int id)
         {
             Package b = PackageRepository.GetById(id);
             if (b == null)
-                return NotFound("the book isnot found");//404
+                return NotFound("the Package isnot found");//404
             return Ok(b);//200
         }
         [HttpPost("add")]
-        public ActionResult<Package> AddBook(Package b)
+        public ActionResult<Package> AddPackage([FromBody]Package b)
         {
-            if (b == null || !ModelState.IsValid)
-                return BadRequest("bbbbbbbb");
+            if (b == null)
+                return BadRequest("is null");
 
             Package Package = PackageRepository.GetById(b.Id);
             if (Package != null)
-
-                return BadRequest("try to add exist book");
+                return BadRequest("try to add exist Package");
             PackageRepository.Add(b);
-            return CreatedAtAction(nameof(AddBook), new { id = b.Id }, b);
+            return CreatedAtAction(nameof(AddPackage), new { id = b.Id }, b);
 
 
         }
         [HttpPut("update/{id}")]
 
-        public IActionResult UpdateBook(int id, Package b)
+        public IActionResult UpdatePackage(int id,[FromBody] Package b)
         {
             if (b == null || !ModelState.IsValid)
                 return BadRequest();
             if (id != b.Id)
                 return Conflict();
-            return CreatedAtAction(nameof(AddBook), new { id = b.Id }, PackageRepository.Update(b));
+            return CreatedAtAction(nameof(AddPackage), new { id = b.Id }, PackageRepository.Update(b));
         }
         [HttpDelete("delete")]
         public IActionResult Delete(int id)
