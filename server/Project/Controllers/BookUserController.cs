@@ -28,13 +28,15 @@ namespace Project.Controllers
             _bookRep = bookRep;
             _bookUserRep = bookUserRep;
         }
-        [HttpGet("getActive/{userId}")]
+        //`${BASE_URL}/users/${userId}/bookUser/getActive`
+        [HttpGet("users/{userId}/active")]
         public ActionResult<List<BookUser>> Get(int userId)
         {
             var result = _bookUserRep.GetAll(bu => bu.UserId == userId && bu.Status == BookUserStatus.Active);
             return Ok(result);
         }
-        [HttpGet("history/{userId}")]
+       
+        [HttpGet("users/{userId}/history")]
         public ActionResult<List<BookUser>> GetHistory(int userId)
         {
             var result = _bookUserRep.GetAll(bu => bu.UserId == userId);
@@ -81,10 +83,10 @@ namespace Project.Controllers
             return Ok(bookUser);
         }
 
-        [HttpPut("cancel/{userBookId}")]
-        public ActionResult<BookUser> ChangeStatusToCancle(int bookuserid)
+        [HttpPut("{userBookId}/cancel")]
+        public ActionResult<BookUser> ChangeStatusToCancle(int userBookId)
         {
-            var bookuser=_bookUserRep.GetById(bookuserid);
+            var bookuser=_bookUserRep.GetById(userBookId);
             if (bookuser == null) return BadRequest("no exist");
             bookuser.Status = BookUserStatus.Cancelled;
             var bu=_bookUserRep.Update(bookuser);
@@ -95,10 +97,12 @@ namespace Project.Controllers
             _bookRep.Update(book);
             return Ok(bu);
         }
-        [HttpPut("complete/{userBookId}")]
-        public ActionResult<BookUser> ChangeStatusToComplete(int bookuserid)
+
+        //http://localhost:5130/api/bookUser/2/complete
+        [HttpPut("{userBookId}/complete")]
+        public ActionResult<BookUser> ChangeStatusToComplete(int userBookId)
         {
-            var bookuser = _bookUserRep.GetById(bookuserid);
+            var bookuser = _bookUserRep.GetById(userBookId);
             if (bookuser == null) return BadRequest("no exist");
             bookuser.Status = BookUserStatus.Completed;
             var bu = _bookUserRep.Update(bookuser);

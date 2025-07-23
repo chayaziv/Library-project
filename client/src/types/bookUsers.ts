@@ -16,7 +16,16 @@ export interface BookUser {
   borrowDate: string;
   returnDate: string;
   actualReturnDate?: string;
-  status: "active" | "completed" | "cancelled";
+  status:
+    | "Active"
+    | "Completed"
+    | "Cancelled"
+    | "active"
+    | "completed"
+    | "cancelled"
+    | 0
+    | 1
+    | 2;
   canModify: boolean;
   isActiveForUser: boolean;
 }

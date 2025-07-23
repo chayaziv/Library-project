@@ -8,7 +8,7 @@ export const fetchActiveBookUsers = createAsyncThunk(
   "bookUsers/fetchActive",
   async (userId: number) => {
     const res = await axios.get<BookUser[]>(
-      `${BASE_URL}/users/${userId}/bookUser/active`
+      `${BASE_URL}/bookUser/users/${userId}/active`
     );
     return res.data;
   }
@@ -18,7 +18,7 @@ export const fetchBookUserHistory = createAsyncThunk(
   "bookUsers/fetchHistory",
   async (userId: number) => {
     const res = await axios.get<BookUser[]>(
-      `${BASE_URL}/users/${userId}/bookUser/history`
+      `${BASE_URL}/bookUser/users/${userId}/history`
     );
     return res.data;
   }
@@ -39,14 +39,17 @@ export const updateBookUser = createAsyncThunk(
   "bookUsers/update",
   async ({
     bookUserId,
+    borrowDate,
     returnDate,
   }: {
     bookUserId: number;
+    borrowDate: string;
     returnDate: string;
   }) => {
     const res = await axios.put<BookUser>(
       `${BASE_URL}/bookUser/${bookUserId}`,
       {
+        borrowDate,
         returnDate,
       }
     );
