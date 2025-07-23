@@ -16,7 +16,7 @@ namespace Project.Controllers
             public int BookId { get; set; }
 
             public DateTime BorrowDate { get; set; }
-            public DateTime ReturnDate { get; set; } // Nullable, in case return hasn't happened yet
+            public DateTime ReturnDate { get; set; } 
         }
          private IRepository<User> _userRep;
          private IRepository<Book> _bookRep;
@@ -36,7 +36,7 @@ namespace Project.Controllers
             var book = _bookRep.GetById(borrow.BookId);
             if (book == null)
                 return NotFound("Book not found");
-            if (book.IsActive == true)
+            if (book.IsActive == false)
             {
                 return BadRequest("the book is not aviable");
             }

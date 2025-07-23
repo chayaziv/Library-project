@@ -26,7 +26,6 @@ import { createBookUser } from "@/store/slices/bookUsersSlice";
 import {
   decrementPackageBooks,
   fetchUserPackages,
-  decrementPackagePoints,
 } from "@/store/slices/packagesSlice";
 import { updateBookAvailability } from "@/store/slices/booksSlice";
 import { toast } from "@/hooks/use-toast";
@@ -127,22 +126,18 @@ export const NewBorrow = () => {
 
     try {
       // Create new borrow using the async thunk
-      const packageUserId = relevantPackages[0]?.id;
       await dispatch(
         createBookUser({
           userId: user.id,
           bookId: selectedBook.id,
           borrowDate: data.borrowDate,
           returnDate: data.returnDate,
-          packageUserId,
         })
       ).unwrap();
 
-      // Update package points on the server
-      await dispatch(decrementPackagePoints(relevantPackages[0].id)).unwrap();
-
       // Update local state for immediate UI feedback
-      dispatch(decrementPackageBooks());
+      const categoryId = selectedBook?.category?.id || selectedBook?.categoryId;
+      dispatch(decrementPackageBooks(categoryId));
       dispatch(
         updateBookAvailability({
           bookId: selectedBook.id,

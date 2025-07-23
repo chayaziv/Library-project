@@ -3,6 +3,10 @@ using DAL;
 using BLL;
 using AutoMapper;
 using BLL.BLL;
+using System.Text.Json.Serialization;
+
+// Replace the problematic line with the correct configuration for JSON options.
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,6 +43,12 @@ builder.Services.AddCors(options =>
 
 
 
+// ... existing code ...
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 
 var app = builder.Build();

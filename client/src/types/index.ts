@@ -8,7 +8,7 @@ export type { User, AuthState } from "./auth";
 export type { Book, BooksState } from "./books";
 
 // BookUsers types
-export type { BookUser, BookUsersState } from "./bookUsers";
+export type { BookUser, BookUsersState, BorrowRequestDto } from "./bookUsers";
 
 // Packages types
 export type { Package, PackageUser, PackagesState } from "./packages";
