@@ -18,15 +18,17 @@ namespace Project.Controllers
         private IMapper mapper;
         private IRepository<PackageUser> _packageUserRepository;
         private IRepository<BookUser> _bookUserRepository;
+        private IRepository<Book> _bookRepository;
         private IRepository<Package> _packageRepository;
 
-        public UserController(IRepository<User> UserRepository ,IMapper mapper,IRepository<PackageUser>package,IRepository<BookUser> repository,IRepository<Package> repository1)
+        public UserController(IRepository<User> UserRepository ,IMapper mapper,IRepository<PackageUser>package,IRepository<BookUser> repository,IRepository<Package> repository1,IRepository<Book> repository2)
         {
             this.UserRepository = UserRepository;
             this.mapper = mapper;
             _packageUserRepository = package;
             _bookUserRepository = repository;
             _packageRepository = repository1;
+            _bookRepository = repository2;
         }
         [HttpPost("login")]
         public ActionResult<UserDto> GetUserById(UserDto s)
@@ -113,14 +115,18 @@ namespace Project.Controllers
             var books = _bookUserRepository.GetAll(bu => bu.UserId == userId && bu.IsActiveForUser == isActive);
             return Ok(books);
         }
+       public class ReqPurchase
+        {
+          public  int packageId {  get; set; }
+        }
         [HttpPost("{userId}/packages")]
-        public ActionResult<PackageUserDto> PurchasePackage(int userId, [FromBody] int packageId)
+        public ActionResult<PackageUserDto> PurchasePackage(int userId, [FromBody] ReqPurchase packageId)
         {
             var user = UserRepository.GetById(userId);
             if (user == null)
                 return NotFound("User not found");
 
-            var package =_packageRepository.GetById(packageId);
+            var package =_packageRepository.GetById(packageId.packageId);
             if (package == null)
                 return NotFound("Package not found");
 
@@ -135,6 +141,25 @@ namespace Project.Controllers
             _packageUserRepository.Add(packageUser);
             var packageUserDto = mapper.Map<PackageUserDto>(packageUser);
             return Ok(packageUserDto);
+
+        }
+
+
+
+
+
+
+        [HttpPost("{userId}/books")]
+        public ActionResult<PackageUserDto> AddBooks(int userId, [FromBody] int bookId)
+        {
+            var user = UserRepository.GetById(userId);
+            if (user == null)
+                return NotFound("User not found");
+
+            var book = _bookRepository.GetById(bookId);
+            if (book == null)
+                return NotFound("Book not found");
+
 
         }
 
