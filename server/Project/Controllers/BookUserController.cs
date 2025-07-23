@@ -89,6 +89,10 @@ namespace Project.Controllers
             bookuser.Status = BookUserStatus.Cancelled;
             var bu=_bookUserRep.Update(bookuser);
             if (bu == null) return BadRequest("update fail");
+            var book=_bookRep.GetById(bookuser.BookId);
+            if (book == null) return BadRequest("book is not exsist");
+            book.IsActive = true;
+            _bookRep.Update(book);
             return Ok(bu);
         }
         [HttpPut("complete/{userBookId}")]
@@ -99,6 +103,10 @@ namespace Project.Controllers
             bookuser.Status = BookUserStatus.Completed;
             var bu = _bookUserRep.Update(bookuser);
             if (bu == null) return BadRequest("update fail");
+            var book = _bookRep.GetById(bookuser.BookId);
+            if (book == null) return BadRequest("book is not exsist");
+            book.IsActive = true;
+            _bookRep.Update(book);
             return Ok(bu);
         }
     }
