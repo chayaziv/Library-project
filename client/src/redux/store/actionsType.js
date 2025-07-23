@@ -1,2 +1,0 @@
-export const ADD_PACKAGE ="ADD_PACKAGE";
- export const REMOVE_PACKAGE = "REMOVE_PACKAGE"

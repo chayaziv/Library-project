@@ -106,6 +106,7 @@ namespace Project.Controllers
         [HttpGet("{userId}/packages")]
         public ActionResult<List<Package>> GetPackagesByActiveStatus(int userId, [FromQuery] bool isActive)
         {
+            Console.WriteLine("----!!!!!!!!!!!!!!!------");
             var packages = _packageUserRepository.GetAll(pu => pu.UserId == userId && pu.IsActive == isActive);
             return Ok(packages);
         }
@@ -122,7 +123,7 @@ namespace Project.Controllers
         [HttpPost("{userId}/packages")]
         public ActionResult<PackageUserDto> PurchasePackage(int userId, [FromBody] ReqPurchase packageId)
         {
-            Console.WriteLine("----!!!!!!!!!!!!!!!------");
+            
             var user = UserRepository.GetById(userId);
             if (user == null)
                 return NotFound("User not found");
