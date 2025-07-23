@@ -11,13 +11,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useAppSelector, useAppDispatch } from "@/hooks/useRedux";
 import {
-  
   purchasePackage,
   fetchPackages,
   fetchUserPackages,
 } from "@/store/slices/packagesSlice";
 import { toast } from "@/hooks/use-toast";
 import { Package2, BookOpen, CreditCard, Loader2 } from "lucide-react";
+import { getCategoryColor } from "@/lib/utils";
 
 export const PackageList = () => {
   const dispatch = useAppDispatch();
@@ -69,19 +69,6 @@ export const PackageList = () => {
         description: errorMessage,
         variant: "destructive",
       });
-    }
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "Thriller":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-      case "Comics":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-      case "Romance":
-        return "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
     }
   };
 

@@ -8,6 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { CreditCard, Package, Plus, RefreshCw } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+import { getCategoryColor } from "@/lib/utils";
 
 export const MyPurchases = () => {
   const dispatch = useAppDispatch();
@@ -92,12 +93,24 @@ export const MyPurchases = () => {
                       {userPackage.package?.name ||
                         `Package #${userPackage.packageId}`}
                       {userPackage.package?.category?.name && (
-                        <Badge className="ml-2 align-middle">
+                        <Badge
+                          className={
+                            "ml-2 align-middle " +
+                            getCategoryColor(userPackage.package.category.name)
+                          }
+                        >
                           {userPackage.package.category.name}
                         </Badge>
                       )}
                     </CardTitle>
-                    <p className="text-muted-foreground">
+                    <p
+                      className={
+                        "text-muted-foreground " +
+                        getCategoryColor(
+                          userPackage.package?.category?.name || ""
+                        )
+                      }
+                    >
                       {userPackage.package?.category?.name ||
                         "Unknown Category"}
                     </p>

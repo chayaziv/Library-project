@@ -8,7 +8,7 @@ export const fetchActiveBookUsers = createAsyncThunk(
   "bookUsers/fetchActive",
   async (userId: number) => {
     const res = await axios.get<BookUser[]>(
-      `${BASE_URL}/users/${userId}/borrows/active`
+      `${BASE_URL}/users/${userId}/bookUser/active`
     );
     return res.data;
   }
@@ -18,7 +18,7 @@ export const fetchBookUserHistory = createAsyncThunk(
   "bookUsers/fetchHistory",
   async (userId: number) => {
     const res = await axios.get<BookUser[]>(
-      `${BASE_URL}/users/${userId}/borrows/history`
+      `${BASE_URL}/users/${userId}/bookUser/history`
     );
     return res.data;
   }
@@ -29,15 +29,18 @@ export const createBookUser = createAsyncThunk(
   async ({
     userId,
     bookId,
+    borrowDate,
     returnDate,
   }: {
     userId: number;
     bookId: number;
+    borrowDate: string;
     returnDate: string;
   }) => {
-    const res = await axios.post<BookUser>(`${BASE_URL}/borrows`, {
+    const res = await axios.post<BookUser>(`${BASE_URL}/bookUser`, {
       userId,
       bookId,
+      borrowDate,
       returnDate,
     });
     return res.data;
@@ -53,9 +56,12 @@ export const updateBookUser = createAsyncThunk(
     bookUserId: number;
     returnDate: string;
   }) => {
-    const res = await axios.put<BookUser>(`${BASE_URL}/borrows/${bookUserId}`, {
-      returnDate,
-    });
+    const res = await axios.put<BookUser>(
+      `${BASE_URL}/bookUser/${bookUserId}`,
+      {
+        returnDate,
+      }
+    );
     return res.data;
   }
 );
@@ -64,7 +70,7 @@ export const cancelBookUser = createAsyncThunk(
   "bookUsers/cancel",
   async (bookUserId: number) => {
     const res = await axios.put<BookUser>(
-      `${BASE_URL}/borrows/${bookUserId}/cancel`
+      `${BASE_URL}/bookUser/${bookUserId}/cancel`
     );
     return res.data;
   }
@@ -74,7 +80,7 @@ export const completeBookUser = createAsyncThunk(
   "bookUsers/complete",
   async (bookUserId: number) => {
     const res = await axios.put<BookUser>(
-      `${BASE_URL}/borrows/${bookUserId}/complete`
+      `${BASE_URL}/bookUser/${bookUserId}/complete`
     );
     return res.data;
   }
@@ -83,7 +89,7 @@ export const completeBookUser = createAsyncThunk(
 export const fetchBookUserById = createAsyncThunk(
   "bookUsers/fetchById",
   async (bookUserId: number) => {
-    const res = await axios.get<BookUser>(`${BASE_URL}/borrows/${bookUserId}`);
+    const res = await axios.get<BookUser>(`${BASE_URL}/bookUser/${bookUserId}`);
     return res.data;
   }
 );

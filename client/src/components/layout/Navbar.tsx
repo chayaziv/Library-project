@@ -11,6 +11,7 @@ import {
   LogOut,
   User,
   CreditCard,
+  History,
 } from "lucide-react";
 import { useEffect } from "react";
 
@@ -47,14 +48,20 @@ export const Navbar = () => {
             <span className="text-xl font-bold">Book Library</span>
           </Link>
 
-          <div className="flex items-center space-x-4">
+          {/* Navigation Links */}
+          <div className="flex items-center space-x-2">
             <Button asChild variant="ghost" size="sm">
               <Link to="/" className="flex items-center space-x-2">
                 <Home className="h-4 w-4" />
                 <span>Home</span>
               </Link>
             </Button>
-
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/books" className="flex items-center space-x-2">
+                <BookOpen className="h-4 w-4" />
+                <span>Books</span>
+              </Link>
+            </Button>
             <Button asChild variant="ghost" size="sm">
               <Link
                 to="/active-borrows"
@@ -64,21 +71,27 @@ export const Navbar = () => {
                 <span>Active Borrows</span>
               </Link>
             </Button>
-
             <Button asChild variant="ghost" size="sm">
-              <Link to="/books" className="flex items-center space-x-2">
-                <BookOpen className="h-4 w-4" />
-                <span>Books</span>
+              <Link
+                to="/borrow-history"
+                className="flex items-center space-x-2"
+              >
+                <History className="h-4 w-4" />
+                <span>Borrow History</span>
               </Link>
             </Button>
-
             <Button asChild variant="ghost" size="sm">
               <Link to="/packages" className="flex items-center space-x-2">
                 <Package className="h-4 w-4" />
                 <span>Packages</span>
               </Link>
             </Button>
-
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/my-purchases" className="flex items-center space-x-2">
+                <CreditCard className="h-4 w-4" />
+                <span>My Purchases</span>
+              </Link>
+            </Button>
             {totalRemainingBooks > 0 && (
               <Badge
                 variant="secondary"
@@ -88,33 +101,23 @@ export const Navbar = () => {
                 <span>{totalRemainingBooks} books left</span>
               </Badge>
             )}
+          </div>
 
+          {/* User Info & Logout */}
+          <div className="flex items-center space-x-4 border-l pl-4 ml-4">
             <div className="flex items-center space-x-2">
-              <Button asChild variant="ghost" size="sm">
-                <Link
-                  to="/my-purchases"
-                  className="flex items-center space-x-2"
-                >
-                  <CreditCard className="h-4 w-4" />
-                  <span>My Purchases</span>
-                </Link>
-              </Button>
-
-              <div className="flex items-center space-x-2">
-                <User className="h-4 w-4" />
-                <span className="text-sm">{user.name}</span>
-              </div>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="flex items-center space-x-2"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Logout</span>
-              </Button>
+              <User className="h-4 w-4" />
+              <span className="text-sm">{user.name}</span>
             </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="flex items-center space-x-2"
+            >
+              <LogOut className="h-4 w-4" />
+              <span>Logout</span>
+            </Button>
           </div>
         </div>
       </div>
