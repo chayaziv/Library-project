@@ -32,6 +32,7 @@ import { updateBookAvailability } from "@/store/slices/booksSlice";
 import { toast } from "@/hooks/use-toast";
 import { BookOpen, Calendar, ArrowRight, AlertCircle } from "lucide-react";
 import { format, addDays } from "date-fns";
+import { getCategoryColor } from "@/lib/utils";
 
 const borrowSchema = z
   .object({
@@ -86,57 +87,59 @@ export const NewBorrow = () => {
       return;
     }
 
-    // Check if user has any active package with remaining points
-    const hasActivePackage = userPackages.some(
-      (pkg) => pkg.isActive && pkg.remainingPoints > 0
-    );
-
-    if (!hasActivePackage) {
+    // Check if book is active
+    if (!book.isActive) {
       toast({
-        title: "No active package",
-        description:
-          "You don't have an active package with remaining books. Please purchase a package.",
+        title: "Book not available",
+        description: "This book is not available for borrowing.",
         variant: "destructive",
       });
-      navigate("/packages");
-      return;
-    }
-
-    // Check if there's an active package with remaining books
-    if (!activePackage || activePackage.remainingPoints <= 0) {
-      navigate("/packages");
+      navigate("/books");
       return;
     }
 
     setSelectedBook(book);
-  }, [bookId, books, activePackage, userPackages, navigate, toast]);
+  }, [bookId, books, navigate, toast]);
 
   const onSubmit = async (data: BorrowFormData) => {
-    if (!selectedBook || !user || !activePackage) return;
+    if (!selectedBook || !user) return;
 
-    // Check balance
-    if (activePackage.remainingPoints <= 0) {
+    // Check if user has a suitable package for this book
+    if (!hasRelevantPackage) {
+      toast({
+        title: "No suitable package",
+        description:
+          "You don't have a suitable package for this book category. Please purchase a package.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if there are remaining points in the relevant package
+    if (totalCategoryPoints <= 0) {
       toast({
         title: "No balance in package",
         description: "Cannot borrow more books. Please purchase a new package.",
         variant: "destructive",
       });
-      navigate("/packages");
       return;
     }
 
     try {
       // Create new borrow using the async thunk
+      const packageUserId = relevantPackages[0]?.id;
       await dispatch(
         createBookUser({
           userId: user.id,
           bookId: selectedBook.id,
+          borrowDate: data.borrowDate,
           returnDate: data.returnDate,
+          packageUserId,
         })
       ).unwrap();
 
       // Update package points on the server
-      await dispatch(decrementPackagePoints(activePackage.id)).unwrap();
+      await dispatch(decrementPackagePoints(relevantPackages[0].id)).unwrap();
 
       // Update local state for immediate UI feedback
       dispatch(decrementPackageBooks());
@@ -165,22 +168,21 @@ export const NewBorrow = () => {
     }
   };
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "Thriller":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-      case "Comics":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-      case "Romance":
-        return "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
-    }
-  };
-
-  if (!selectedBook || !activePackage) {
+  if (!selectedBook) {
     return null;
   }
+
+  // Calculate total remaining points for the selected book's category
+  const categoryId = selectedBook?.category?.id || selectedBook?.categoryId;
+  const relevantPackages = userPackages.filter(
+    (pkg) => pkg.isActive && pkg.package?.categoryId === categoryId
+  );
+  const totalCategoryPoints = relevantPackages.reduce(
+    (sum, pkg) => sum + pkg.remainingPoints,
+    0
+  );
+  const hasRelevantPackage =
+    relevantPackages.length > 0 && totalCategoryPoints > 0;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -214,8 +216,10 @@ export const NewBorrow = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Badge className={getCategoryColor(selectedBook.category)}>
-                    {selectedBook.category}
+                  <Badge
+                    className={getCategoryColor(selectedBook.category?.name)}
+                  >
+                    {selectedBook.category?.name}
                   </Badge>
                   <span className="text-sm text-muted-foreground">
                     Category
@@ -237,28 +241,33 @@ export const NewBorrow = () => {
                 <div>
                   <h3 className="font-semibold">Package Balance</h3>
                   <p className="text-sm text-muted-foreground">
-                    {activePackage.package?.name ||
-                      `Package #${activePackage.packageId}`}
+                    {selectedBook.category?.name}
                   </p>
                 </div>
                 <div className="text-left">
                   <div className="text-2xl font-bold">
-                    {activePackage.remainingPoints}
+                    {totalCategoryPoints}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    books remaining
+                    books remaining in this category
                   </div>
                 </div>
               </div>
-
-              {activePackage.remainingPoints <= 1 && (
-                <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md flex items-center gap-2">
-                  <AlertCircle className="h-4 w-4 text-yellow-600" />
-                  <span className="text-sm text-yellow-800">
-                    {activePackage.remainingPoints === 1
-                      ? "This is the last book in your package"
-                      : "No balance in package. Purchase a new package"}
+              {!hasRelevantPackage && (
+                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  <span className="text-sm text-red-800">
+                    No suitable package for this category. Please purchase a
+                    package to borrow this book.
                   </span>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="ml-auto"
+                    onClick={() => navigate("/packages")}
+                  >
+                    Go to Packages
+                  </Button>
                 </div>
               )}
             </CardContent>
@@ -321,7 +330,7 @@ export const NewBorrow = () => {
                     <Button
                       type="submit"
                       className="flex-1"
-                      disabled={activePackage.remainingPoints <= 0}
+                      disabled={!hasRelevantPackage || totalCategoryPoints <= 0}
                     >
                       <BookOpen className="mr-2 h-4 w-4" />
                       Create Borrow

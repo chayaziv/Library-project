@@ -18,6 +18,7 @@ import {
 } from "@/store/slices/booksSlice";
 import { fetchUserPackages } from "@/store/slices/packagesSlice";
 import { BookOpen, Filter, Package } from "lucide-react";
+import { getCategoryColor } from "@/lib/utils";
 
 export const BookList = () => {
   const dispatch = useAppDispatch();
@@ -52,53 +53,7 @@ export const BookList = () => {
   };
 
   const handleBorrowBook = (bookId: number) => {
-    // Check if user has any active package with remaining points
-    const hasActivePackage = userPackages.some(
-      (pkg) => pkg.isActive && pkg.remainingPoints > 0
-    );
-
-    if (!hasActivePackage) {
-      navigate("/packages");
-      return;
-    }
     navigate(`/borrow/new/${bookId}`);
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "Thriller":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-      case "Comics":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-      case "Romance":
-        return "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
-    }
-  };
-
-  // Helper: does user have a suitable package for this book's category?
-  const hasSuitablePackage = (book) => {
-    return userPackages.some(
-      (pkg) =>
-        pkg.isActive &&
-        pkg.remainingPoints > 0 &&
-        pkg.package &&
-        pkg.package.categoryId === book.categoryId
-    );
-  };
-
-  // Helper: get remaining points for this category
-  const getRemainingPointsForCategory = (book) => {
-    return userPackages
-      .filter(
-        (pkg) =>
-          pkg.isActive &&
-          pkg.remainingPoints > 0 &&
-          pkg.package &&
-          pkg.package.categoryId === book.categoryId
-      )
-      .reduce((total, pkg) => total + pkg.remainingPoints, 0);
   };
 
   // Calculate total remaining books across all active packages
@@ -173,58 +128,60 @@ export const BookList = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {filteredBooks.map((book) => {
-            const canBorrow =
-              book.isActive &&
-              hasSuitablePackage(book) &&
-              getRemainingPointsForCategory(book) > 0;
+            const isBookAvailable = book.isActive;
             return (
-              <Card key={book.id} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-lg line-clamp-2">
-                      {book.name}
-                    </CardTitle>
-                    <Badge
-                      className={getCategoryColor(book.category?.name || "")}
-                    >
-                      {book.category?.name}
-                    </Badge>
-                  </div>
-                  <p className="text-muted-foreground text-sm">
-                    By: {book.author}
-                  </p>
-                </CardHeader>
-
-                <CardContent>
-                  <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
-                    {book.name}
-                  </p>
-
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="text-sm text-muted-foreground">
-                      {book.isActive ? "Available" : "Not Available"}
+              <div key={book.id} className="relative">
+                <Card className="hover:shadow-lg transition-shadow">
+                  <CardHeader>
+                    <div className="flex justify-between items-start mb-2">
+                      <CardTitle className="text-lg line-clamp-2">
+                        {book.name}
+                      </CardTitle>
+                      <Badge
+                        className={getCategoryColor(book.category?.name || "")}
+                      >
+                        {book.category?.name}
+                      </Badge>
                     </div>
-                    <Button
-                      size="sm"
-                      disabled={!canBorrow}
-                      className="flex items-center gap-2"
-                      onClick={() => canBorrow && handleBorrowBook(book.id)}
-                    >
-                      <BookOpen className="h-4 w-4" />
-                      Borrow
-                    </Button>
-                    {!canBorrow && (
+                    <p className="text-muted-foreground text-sm">
+                      By: {book.author}
+                    </p>
+                  </CardHeader>
+
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground line-clamp-3 mb-4">
+                      {book.name}
+                    </p>
+
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-sm text-muted-foreground">
+                        {book.isActive ? "Available" : "Not Available"}
+                      </div>
                       <Button
                         size="sm"
-                        variant="secondary"
-                        onClick={() => navigate("/packages")}
+                        disabled={!isBookAvailable}
+                        className="flex items-center gap-2"
+                        onClick={() =>
+                          isBookAvailable && handleBorrowBook(book.id)
+                        }
                       >
-                        Buy Package
+                        <BookOpen className="h-4 w-4" />
+                        Borrow
                       </Button>
-                    )}
+                    </div>
+                  </CardContent>
+                </Card>
+                {!book.isActive && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-200 bg-opacity-60 rounded-lg z-10">
+                    <span
+                      className="text-gray-700 text-xl font-semibold"
+                      style={{ textShadow: "0 1px 4px #fff" }}
+                    >
+                      Inactive Book
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
+                )}
+              </div>
             );
           })}
         </div>

@@ -6,6 +6,7 @@ import { fetchBookUserHistory } from "@/store/slices/bookUsersSlice";
 import { History, BookOpen } from "lucide-react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+import { getCategoryColor } from "@/lib/utils";
 
 export const BorrowHistory = () => {
   const dispatch = useAppDispatch();
@@ -116,7 +117,12 @@ export const BorrowHistory = () => {
                   )}
                   <div>
                     <span className="text-muted-foreground">Category:</span>
-                    <div className="font-medium">
+                    <div
+                      className={
+                        "font-medium inline-block px-2 rounded " +
+                        getCategoryColor(borrow.book.category.name)
+                      }
+                    >
                       {borrow.book.category.name}
                     </div>
                   </div>

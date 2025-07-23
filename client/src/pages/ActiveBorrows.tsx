@@ -26,6 +26,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { format } from "date-fns";
+import { getCategoryColor } from "@/lib/utils";
 
 export const ActiveBorrows = () => {
   const dispatch = useAppDispatch();
@@ -168,8 +169,15 @@ export const ActiveBorrows = () => {
               >
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
-                    <CardTitle className="text-lg">
+                    <CardTitle className="text-lg flex items-center gap-2">
                       {borrow.book.name}
+                      <Badge
+                        className={getCategoryColor(
+                          borrow.book.category?.name || ""
+                        )}
+                      >
+                        {borrow.book.category?.name}
+                      </Badge>
                     </CardTitle>
                     <Badge className={borrowStatus.color}>
                       {borrowStatus.label}

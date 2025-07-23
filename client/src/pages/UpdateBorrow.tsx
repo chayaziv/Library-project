@@ -26,6 +26,7 @@ import { updateBookUser } from "@/store/slices/bookUsersSlice";
 import { toast } from "@/hooks/use-toast";
 import { BookOpen, Calendar, ArrowRight, Save } from "lucide-react";
 import { format } from "date-fns";
+import { getCategoryColor } from "@/lib/utils";
 
 const borrowSchema = z
   .object({
@@ -109,19 +110,6 @@ export const UpdateBorrow = () => {
         description: "An error occurred while updating the borrow",
         variant: "destructive",
       });
-    }
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "Thriller":
-        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
-      case "Comics":
-        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
-      case "Romance":
-        return "bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200";
-      default:
-        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
     }
   };
 
