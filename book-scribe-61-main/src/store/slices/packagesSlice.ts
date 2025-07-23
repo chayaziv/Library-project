@@ -31,8 +31,12 @@ export const purchasePackage = createAsyncThunk(
   "packages/purchase",
   async ({ userId, packageId }: { userId: number; packageId: number }) => {
     const res = await axios.post<PackageUser>(
-      `${BASE_URL}/users/${userId}/packages`,
-      { packageId }
+      `${BASE_URL}/user/${userId}/packages`,
+       packageId , // או packageId אם זו משתנה
+       {
+         headers: {
+           "Content-Type": "application/json"
+         }}
     );
     return res.data;
   }
