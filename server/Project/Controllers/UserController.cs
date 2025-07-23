@@ -154,7 +154,7 @@ namespace Project.Controllers
 
 
         [HttpPost("{userId}/books")]
-        public ActionResult<PackageUserDto> AddBooks(int userId, [FromBody] ReqAdd bookId)
+        public ActionResult<Book> AddBooks(int userId, [FromBody] ReqAdd bookId)
         {
             var user = UserRepository.GetById(userId);
             if (user == null)
@@ -172,9 +172,10 @@ namespace Project.Controllers
 
             if (matchingPackageUser == null)
                 return BadRequest("No available package with points for this book's category.");
-
-
-
+            book.IsActive = false;
+            _bookRepository.Update(book);
+            UserRepository.Update(user);
+            return Ok(book);
         }
 
     }
