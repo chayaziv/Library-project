@@ -20,7 +20,7 @@ export const fetchBookById = createAsyncThunk(
 export const fetchCategories = createAsyncThunk(
   "books/fetchCategories",
   async () => {
-    const res = await axios.get<Category[]>(`${BASE_URL}/categories`);
+    const res = await axios.get<Category[]>(`${BASE_URL}/category/getall`);
     return res.data;
   }
 );
