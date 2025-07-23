@@ -20,15 +20,28 @@ namespace Project.Controllers
         }
          private IRepository<User> _userRep;
          private IRepository<Book> _bookRep;
+         private IRepository<BookUser> _bookUserRep;
 
-        public BookUserController(IRepository<User> userRep, IRepository<Book> bookRep)
+        public BookUserController(IRepository<User> userRep, IRepository<Book> bookRep,IRepository<BookUser> bookUserRep)
         {
             _userRep = userRep;
             _bookRep = bookRep;
+            _bookUserRep = bookUserRep;
         }
-
+        [HttpGet("{userId}/getActive")]
+        public IActionResult Get(int userId)
+        {
+            var result = _bookUserRep.GetAll(bu => bu.UserId == userId && bu.Status == BookUserStatus.Active);
+            return Ok(result);
+        }
+        [HttpGet("{userId}/history")]
+        public IActionResult Get(int userId)
+        {
+            var result = _bookUserRep.GetAll(bu => bu.UserId == userId && bu.Status == BookUserStatus.Active);
+            return Ok(result);
+        }
         [HttpPost]
-        public ActionResult<BookUser> AddBook([FromBody] BorrowRequestDto borrow)
+      public ActionResult<BookUser> AddBook([FromBody] BorrowRequestDto borrow)
         {
             var user = _userRep.GetById(borrow.UserId);
             if (user == null)
@@ -36,7 +49,7 @@ namespace Project.Controllers
             var book = _bookRep.GetById(borrow.BookId);
             if (book == null)
                 return NotFound("Book not found");
-            if (book.IsActive == true)
+            if (book.IsActive == false)
             {
                 return BadRequest("the book is not aviable");
             }
